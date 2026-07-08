@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeURL Guard — Sitio Bloqueado</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #ef4444;
+      --red-dark: #dc2626;
+      --orange: #f97316;
+      --bg: #0a0f1a;
+      --card: #111827;
+      --border: #1f2d3d;
+      --text: #e2e8f0;
+      --text-muted: #6b7280;
+    }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      padding: 20px;
+    }
+    .container { max-width: 560px; width: 100%; }
+    .badge-top { text-align: center; margin-bottom: 20px; }
+    .badge-top span {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(239,68,68,0.35);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(239,68,68,0.12), 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .card-header {
+      background: linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(127,0,0,0.25) 100%);
+      border-bottom: 1px solid rgba(239,68,68,0.25);
+      padding: 32px 32px 24px;
+      text-align: center;
+    }
+    .shield-icon {
+      font-size: 56px; line-height: 1; margin-bottom: 14px;
+      filter: drop-shadow(0 0 20px rgba(239,68,68,0.5));
+      animation: pulse-danger 2s ease-in-out infinite;
+    }
+    @keyframes pulse-danger {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(239,68,68,0.5)); }
+      50% { filter: drop-shadow(0 0 35px rgba(239,68,68,0.8)); }
+    }
+    .card-header h1 { font-size: 22px; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+    .card-header p { font-size: 14px; color: rgba(255,255,255,0.6); max-width: 380px; margin: 0 auto; line-height: 1.5; }
+    .risk-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
+    .risk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .risk-header span { font-size: 12px; color: var(--text-muted); }
+    .risk-pct { font-size: 24px; font-weight: 900; color: var(--red); }
+    .risk-bar-track { height: 8px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+    .risk-bar-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      width: 0%;
+      transition: width 1s ease;
+    }
+    .info-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
+    .info-row { display: flex; align-items: flex-start; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; width: 20px; text-align: center; }
+    .info-label { font-size: 12px; color: var(--text-muted); flex-shrink: 0; width: 110px; padding-top: 1px; }
+    .info-value { font-size: 13px; color: var(--text); flex: 1; word-break: break-all; font-weight: 500; }
+    .info-value.danger { color: var(--red); font-weight: 700; }
+    .info-value.orange { color: var(--orange); font-weight: 700; }
+    .actions { padding: 20px 28px 24px; display: flex; flex-direction: column; gap: 10px; }
+    .btn {
+      width: 100%; padding: 13px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer; border: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, var(--red-dark), var(--red));
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(239,68,68,0.35);
+    }
+    .btn-danger:hover { transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent; color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .card-footer {
+      padding: 12px 28px 14px;
+      background: rgba(0,0,0,0.2);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .footer-text { font-size: 11px; color: var(--text-muted); }
+    .footer-text strong { color: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge-top">
+      <span>🛡️ SafeURL Guard · Protección activa</span>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="shield-icon" id="shield-icon">🔐</div>
+        <h1>Sitio bloqueado por seguridad</h1>
+        <p>La URL que intentaste visitar ha sido clasificada como potencialmente maliciosa por SafeURL Guard.</p>
+      </div>
+      <div class="risk-section">
+        <div class="risk-header">
+          <span>Nivel de riesgo detectado</span>
+          <span class="risk-pct" id="risk-pct">0%</span>
+        </div>
+        <div class="risk-bar-track">
+          <div class="risk-bar-fill" id="risk-bar"></div>
+        </div>
+      </div>
+      <div class="info-section">
+        <div class="info-row">
+          <span class="info-icon">🔗</span>
+          <span class="info-label">URL bloqueada:</span>
+          <span class="info-value danger" id="info-url">–</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">☠️</span>
+          <span class="info-label">Tipo de amenaza:</span>
+          <span class="info-value orange" id="info-tipo">–</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">📅</span>
+          <span class="info-label">Fecha y hora:</span>
+          <span class="info-value" id="info-fecha">–</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-danger" id="btn-back">🛡️ Regresar a zona segura</button>
+        <button class="btn btn-secondary" id="btn-continue">⚠️ Continuar bajo riesgo (no recomendado)</button>
+      </div>
+      <div class="card-footer">
+        <span class="footer-text">🛡️ Análisis realizado por <strong>SafeURL Guard v2.0</strong> con Machine Learning</span>
+      </div>
+    </div>
+  </div>
+  <script src="blocked.js"></script>
+</body>
+</html>
