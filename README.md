@@ -1,189 +1,208 @@
-# SafeURL Guard v2.0 🛡️
 
-Extensión de Chrome/Edge para detectar y bloquear URLs maliciosas usando **Machine Learning (Random Forest)**.
-
+Readme · MD
+# 🛡️ SafeURL Guard v2.0
+ 
+Extensión de Chrome que detecta y bloquea URLs maliciosas en tiempo real usando **Machine Learning**.
+ 
 ---
-
-## 📁 Estructura del proyecto
-
+ 
+## ⚡ Opción A — Solo instalar la extensión (sin instalar Python)
+ 
+Esta opción usa el backend ya desplegado en internet. No necesitas instalar nada más que la extensión.
+ 
+**Paso 1** — Descarga o clona este repositorio
+ 
+```bash
+git clone https://github.com/zFabianzzz/safeurl-guard.git
+```
+ 
+**Paso 2** — Abre Chrome y ve a:
+ 
+```
+chrome://extensions/
+```
+ 
+**Paso 3** — Activa el **"Modo desarrollador"** (toggle arriba a la derecha)
+ 
+**Paso 4** — Clic en **"Cargar descomprimida"**
+ 
+**Paso 5** — Selecciona la carpeta `extension` que está dentro del proyecto
+ 
 ```
 safeurl-guard/
-├── backend/                    # API Python (FastAPI)
-│   ├── main.py                 # Servidor principal
-│   ├── train_model.py          # Script de entrenamiento del modelo
-│   ├── requirements.txt        # Dependencias Python
-│   ├── model/                  # Modelo entrenado (.joblib) ← se genera
-│   ├── database/
-│   │   └── db.py               # SQLite para historial
-│   └── services/
-│       ├── analyzer.py         # Lógica ML de análisis
-│       └── feature_extractor.py # Extrae features de URLs
-│
-└── extension/                  # Extensión Chrome/Edge
-    ├── manifest.json
-    ├── background.js            # Service worker (análisis automático)
-    ├── popup.html / popup.js    # Popup principal
-    ├── blocked.html             # Página de bloqueo
-    ├── settings.html            # Configuración
-    └── icons/
+└── extension/   ← selecciona esta carpeta
 ```
-
+ 
+**Paso 6** — ✅ Listo. La extensión ya aparece en Chrome y funciona automáticamente.
+ 
+> ⚠️ La primera vez puede tardar hasta 60 segundos en responder porque el servidor se activa automáticamente. Si el popup dice "Backend offline", espera un momento y navega a cualquier página.
+ 
 ---
-
-## 🚀 Instalación paso a paso
-
-### 1. Preparar el entorno Python
-
+ 
+## 🔬 Opción B — Ejecutar el backend en tu propia PC
+ 
+Usa esta opción si quieres ver el código completo funcionando en tu máquina.
+ 
+### Requisitos
+ 
+Instala estos programas antes de empezar:
+ 
+- **Python 3.11** → https://www.python.org/downloads/release/python-3119/
+  - ⚠️ Durante la instalación marca la casilla ☑️ **"Add Python to PATH"**
+- **Git** → https://git-scm.com/downloads
+---
+ 
+### Paso 1 — Clonar el repositorio
+ 
 ```bash
-# Entrar a la carpeta backend
+git clone https://github.com/zFabianzzz/safeurl-guard.git
+cd safeurl-guard
+```
+ 
+---
+ 
+### Paso 2 — Entrar a la carpeta del backend
+ 
+```bash
 cd backend
-
-# Crear entorno virtual
-python -m venv venv
-
-# Activar (Windows)
+```
+ 
+---
+ 
+### Paso 3 — Crear el entorno virtual
+ 
+```bash
+py -3.11 -m venv venv
+```
+ 
+---
+ 
+### Paso 4 — Activar el entorno virtual
+ 
+```bash
 venv\Scripts\activate
-
-# Activar (Mac/Linux)
-source venv/bin/activate
-
-# Instalar dependencias
+```
+ 
+Sabrás que está activado cuando el prompt muestre `(venv)` al inicio.
+ 
+> Si te da error en PowerShell, ejecuta primero esto y vuelve a intentarlo:
+> ```bash
+> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+> ```
+ 
+---
+ 
+### Paso 5 — Instalar las dependencias
+ 
+```bash
 pip install -r requirements.txt
 ```
-
-### 2. Entrenar el modelo Random Forest
-
+ 
+Esto descarga todas las librerías necesarias. Puede tardar 2-3 minutos.
+ 
+---
+ 
+### Paso 6 — Iniciar el servidor
+ 
 ```bash
-# Con el dataset completo (651k filas, ~5-10 min)
-python train_model.py --data ../dataset_with_all_features_v2.csv
-
-# Con muestra reducida (más rápido, suficiente para pruebas)
-python train_model.py --data ../dataset_with_all_features_v2.csv --sample 100000
+uvicorn main:app --reload --port 8000
 ```
-
-El modelo se guarda en `backend/model/rf_model.joblib`.
-
-### 3. Iniciar el backend
-
-```bash
-# Desde la carpeta backend/
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+ 
+Cuando veas esto en la terminal, el servidor está listo:
+ 
 ```
-
-Verifica que funciona: http://localhost:8000
-
-### 4. Cargar la extensión en Chrome/Edge
-
-1. Abre Chrome → `chrome://extensions/`
-2. Activa **"Modo desarrollador"** (esquina superior derecha)
+✅ Modelo Random Forest cargado correctamente
+   Accuracy: 0.9461
+INFO: Uvicorn running on http://127.0.0.1:8000
+```
+ 
+> ⚠️ Deja esta terminal abierta mientras usas la extensión. Si la cierras, el servidor se apaga.
+ 
+Verifica que funciona abriendo en el navegador:
+**http://localhost:8000**
+ 
+Debe aparecer:
+```json
+{"message": "SafeURL Guard API v2.0 funcionando correctamente"}
+```
+ 
+---
+ 
+### Paso 7 — Cambiar la extensión para usar tu servidor local
+ 
+Abre estos dos archivos en un editor de texto:
+ 
+- `extension/background.js`
+- `extension/popup.js`
+En ambos archivos busca esta línea al inicio y cámbiala:
+ 
+```javascript
+// Antes (servidor en la nube):
+const API_BASE = "https://safeurl-guard.onrender.com";
+ 
+// Después (tu servidor local):
+const API_BASE = "http://127.0.0.1:8000";
+```
+ 
+Guarda ambos archivos.
+ 
+---
+ 
+### Paso 8 — Cargar la extensión en Chrome
+ 
+1. Abre Chrome y ve a `chrome://extensions/`
+2. Activa el **"Modo desarrollador"** (toggle arriba a la derecha)
 3. Clic en **"Cargar descomprimida"**
-4. Selecciona la carpeta `extension/`
-5. ¡Listo! El ícono de SafeURL Guard aparecerá en la barra
-
+4. Selecciona la carpeta `extension/` dentro del proyecto
+5. ✅ La extensión aparece en la barra del navegador
 ---
-
-## 🌐 Publicar la extensión para que cualquiera la instale
-
-### Opción A: Chrome Web Store (recomendado)
-
-1. Crea una cuenta en [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-   - Pago único de $5 USD para registrarse como desarrollador
-2. Comprime la carpeta `extension/` en un ZIP
-3. Sube el ZIP en el dashboard → "Agregar nuevo artículo"
-4. Completa descripción, capturas de pantalla, categoría
-5. Espera revisión de Google (1-3 días hábiles)
-6. Una vez aprobado, cualquier persona puede instalarla con un clic
-
-> ⚠️ **Para la Chrome Web Store, el backend NO puede ser `localhost`.**
-> Necesitas un backend en la nube. Ver sección "Despliegue en la nube" abajo.
-
-### Opción B: Instalar sin Chrome Web Store (para compartir con conocidos)
-
-1. Descarga el ZIP de la extensión
-2. Descomprime la carpeta `extension/`
-3. En Chrome → `chrome://extensions/` → Modo desarrollador
-4. "Cargar descomprimida" → seleccionar la carpeta
-5. Compartir el ZIP con tus usuarios + instrucciones
-
+ 
+### Paso 9 — Verificar que todo funciona
+ 
+- Navega a cualquier página web — el popup mostrará el análisis automáticamente
+- El popup debe mostrar **"Backend online · ML activo"** en verde
+- Prueba con una URL sospechosa desde el tab **"🔍 Manual"**
 ---
-
-## ☁️ Despliegue del backend en la nube (para uso público)
-
-Para que la extensión funcione sin que cada usuario tenga que instalar Python localmente,
-despliega el backend en un servidor gratuito:
-
-### Opción A: Render.com (gratis, recomendado)
-
-1. Crea cuenta en [render.com](https://render.com)
-2. "New Web Service" → conecta tu repositorio GitHub
-3. Configura:
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-   - **Root Directory:** `backend`
-4. Una vez desplegado, obtienes una URL tipo `https://safeurl-guard-xxx.onrender.com`
-5. En `extension/background.js` y `extension/popup.js`, cambia:
-   ```js
-   const API_BASE = "https://safeurl-guard-xxx.onrender.com"; // tu URL de Render
-   ```
-
-### Opción B: Railway.app (gratis con límites)
-
-1. Cuenta en [railway.app](https://railway.app)
-2. "New Project" → "Deploy from GitHub"
-3. Selecciona la carpeta `backend`
-4. Railway detecta automáticamente FastAPI
-
-### Notas para producción:
-
-- El modelo `.joblib` debe subirse junto con el código, o entrenarlo en el servidor
-- El archivo `safeurl.db` (SQLite) se recrea automáticamente
-- Para HTTPS (requerido por Chrome Web Store), Render y Railway lo incluyen gratis
-
+ 
+## ❓ Preguntas frecuentes
+ 
+**¿Por qué el popup dice "Backend offline"?**
+- Si usas la Opción A: espera 60 segundos, el servidor se está despertando
+- Si usas la Opción B: verifica que la terminal con `uvicorn` sigue abierta
+**¿Por qué me bloquea sitios que no son peligrosos?**
+- El modelo tiene 94.61% de precisión, por lo que puede tener falsos positivos
+- Puedes hacer clic en "Continuar bajo riesgo" para acceder de todas formas
+**¿Puedo usar la extensión en Edge?**
+- Sí, Edge también soporta extensiones de Chrome. Los pasos son los mismos
+**¿El servidor de la nube tiene mis datos?**
+- El servidor solo guarda las URLs analizadas para el historial
+- No guarda información personal ni credenciales
 ---
-
-## 🤖 Dataset y modelo
-
-El modelo fue entrenado con **651,191 URLs** categorizadas:
-
-| Categoría   | Cantidad | Descripción                     |
-|-------------|----------|---------------------------------|
-| Benign      | 428,209  | URLs seguras y legítimas        |
-| Defacement  | 96,457   | Sitios comprometidos/hackeados  |
-| Phishing    | 93,933   | Sitios de robo de credenciales  |
-| Malware     | 32,520   | Distribución de software malicioso |
-
-### Agregar más datos
-
-Fuentes de datasets adicionales (gratuitas):
-- **PhishTank**: https://phishtank.org/developer_info.php — base de datos de phishing
-- **URLhaus**: https://urlhaus.abuse.ch/api/ — URLs de malware en tiempo real
-- **OpenPhish**: https://openphish.com/feed.txt — feed de phishing activo
-- **Kaggle**: buscar "malicious URLs dataset"
-
-Para agregar nuevas URLs al CSV, mantén las mismas columnas y vuelve a ejecutar `train_model.py`.
-
+ 
+## 🌐 Backend en la nube
+ 
+El backend está disponible en:
+ 
+**https://safeurl-guard.onrender.com**
+ 
+| Dirección | Descripción |
+|---|---|
+| https://safeurl-guard.onrender.com | Estado general |
+| https://safeurl-guard.onrender.com/health | Estado del modelo |
+| https://safeurl-guard.onrender.com/historial | Historial de análisis |
+| https://safeurl-guard.onrender.com/docs | Documentación de la API |
+ 
 ---
-
-## 🔧 Endpoints de la API
-
-| Endpoint          | Método | Descripción                     |
-|-------------------|--------|---------------------------------|
-| `/analizar-url`   | POST   | Analiza una URL                 |
-| `/historial`      | GET    | Obtiene el historial            |
-| `/estadisticas`   | GET    | Estadísticas globales           |
-| `/health`         | GET    | Estado del servidor y modelo    |
-
-Documentación interactiva: http://localhost:8000/docs
-
----
-
-## 📊 Funcionalidades de la extensión
-
-- ✅ Análisis automático de cada página visitada
-- 🚨 Bloqueo automático de sitios peligrosos
-- ⚠️ Advertencias para sitios sospechosos
-- 🎨 Popup con colores dinámicos según nivel de riesgo
-- 🔍 Análisis manual de URLs
-- 📋 Historial de navegación analizada
-- ⚙️ Configuración personalizable (sensibilidad, bloqueo automático)
-- 🤖 Indicador de si se usa el modelo ML o modo heurístico
+ 
+## 📊 Sobre el modelo
+ 
+El modelo fue entrenado con **182,520 URLs** de 4 categorías:
+ 
+| Categoría | Descripción |
+|---|---|
+| ✅ Segura | Sitios legítimos y confiables |
+| 🎣 Phishing | Sitios que roban credenciales |
+| ☠️ Malware | Sitios que distribuyen software malicioso |
+| 💀 Defacement | Sitios comprometidos o hackeados |
+ 
+**Precisión del modelo: 94.61%**
