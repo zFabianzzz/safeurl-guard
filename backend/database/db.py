@@ -1,99 +1,84 @@
 """
-db.py - Base de datos SQLite para SafeURL Guard con soporte multi-dispositivo y panel admin
+db.py - Base de datos PostgreSQL (Neon) para SafeURL Guard con soporte
+multi-dispositivo y panel admin.
+
+Migrado desde SQLite. Mantiene exactamente las mismas funciones que
+usaba main.py, para que no haya que tocar el resto del backend.
 """
-import sqlite3
 import os
 import hashlib
 import secrets
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "safeurl.db")
+import psycopg2
+import psycopg2.extras
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    if not DATABASE_URL:
+        raise RuntimeError(
+            "Falta la variable de entorno DATABASE_URL. "
+            "Configúrala en Render → Environment con el connection string de Neon."
+        )
+    conn = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
     return conn
 
 
 def init_db():
     with get_connection() as conn:
-        # Historial por dispositivo
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS historial (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                device_id TEXT NOT NULL,
-                url TEXT NOT NULL,
-                dominio TEXT,
-                clasificacion TEXT,
-                riesgo INTEGER,
-                accion TEXT,
-                modelo TEXT,
-                fecha TEXT DEFAULT (datetime('now','localtime'))
-            )
-        """)
-        # Dispositivos registrados
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS dispositivos (
-                device_id TEXT PRIMARY KEY,
-                nombre TEXT,
-                primera_vez TEXT DEFAULT (datetime('now','localtime')),
-                ultima_vez TEXT DEFAULT (datetime('now','localtime')),
-                total_urls INTEGER DEFAULT 0
-            )
-        """)
-        # Blacklist por dispositivo (o global con device_id='*')
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS blacklist (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                device_id TEXT NOT NULL,
-                patron TEXT NOT NULL,
-                tipo TEXT DEFAULT 'palabra',
-                creado TEXT DEFAULT (datetime('now','localtime'))
-            )
-        """)
-        # Admin tokens de sesión
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS admin_sessions (
-                token TEXT PRIMARY KEY,
-                creado TEXT DEFAULT (datetime('now','localtime')),
-                expira TEXT
-            )
-        """)
+        with conn.cursor() as cur:
+            # Historial por dispositivo
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS historial (
+                    id SERIAL PRIMARY KEY,
+                    device_id TEXT NOT NULL,
+                    url TEXT NOT NULL,
+                    dominio TEXT,
+                    clasificacion TEXT,
+                    riesgo INTEGER,
+                    accion TEXT,
+                    modelo TEXT,
+                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            # Dispositivos registrados
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS dispositivos (
+                    device_id TEXT PRIMARY KEY,
+                    nombre TEXT,
+                    primera_vez TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ultima_vez TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    total_urls INTEGER DEFAULT 0
+                )
+            """)
+            # Blacklist por dispositivo (o global con device_id='*')
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS blacklist (
+                    id SERIAL PRIMARY KEY,
+                    device_id TEXT NOT NULL,
+                    patron TEXT NOT NULL,
+                    tipo TEXT DEFAULT 'palabra',
+                    creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            # Admin tokens de sesión
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS admin_sessions (
+                    token TEXT PRIMARY KEY,
+                    creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    expira TIMESTAMP
+                )
+            """)
+
+            # Migración defensiva: agrega columnas si faltaran (por si en el
+            # futuro se reutiliza esta base con un schema mas viejo)
+            cur.execute("ALTER TABLE historial ADD COLUMN IF NOT EXISTS device_id TEXT NOT NULL DEFAULT 'unknown'")
+            cur.execute("ALTER TABLE dispositivos ADD COLUMN IF NOT EXISTS total_urls INTEGER DEFAULT 0")
+            cur.execute("ALTER TABLE dispositivos ADD COLUMN IF NOT EXISTS nombre TEXT")
+
         conn.commit()
-
-        # ── MIGRACIÓN: agrega columnas faltantes en tablas que ya existían
-        # con un schema viejo (por ejemplo la base de datos persistida en Render
-        # antes de que agregáramos multi-dispositivo) ──
-        _migrar_columnas(conn)
-        conn.commit()
-
-        _crear_admin_por_defecto()
-
-
-def _migrar_columnas(conn):
-    """Agrega columnas nuevas a tablas que ya existían con un schema viejo.
-    CREATE TABLE IF NOT EXISTS no modifica tablas ya creadas, así que si la
-    base de datos en disco es de una versión anterior del proyecto, hay que
-    parcharla a mano con ALTER TABLE."""
-
-    columnas_historial = [row[1] for row in conn.execute("PRAGMA table_info(historial)").fetchall()]
-    if "device_id" not in columnas_historial:
-        conn.execute("ALTER TABLE historial ADD COLUMN device_id TEXT NOT NULL DEFAULT 'unknown'")
-        print("Migracion: columna device_id agregada a historial")
-
-    columnas_dispositivos = [row[1] for row in conn.execute("PRAGMA table_info(dispositivos)").fetchall()]
-    if "total_urls" not in columnas_dispositivos:
-        conn.execute("ALTER TABLE dispositivos ADD COLUMN total_urls INTEGER DEFAULT 0")
-        print("Migracion: columna total_urls agregada a dispositivos")
-    if "nombre" not in columnas_dispositivos:
-        conn.execute("ALTER TABLE dispositivos ADD COLUMN nombre TEXT")
-        print("Migracion: columna nombre agregada a dispositivos")
-    if "primera_vez" not in columnas_dispositivos:
-        conn.execute("ALTER TABLE dispositivos ADD COLUMN primera_vez TEXT DEFAULT (datetime('now','localtime'))")
-        print("Migracion: columna primera_vez agregada a dispositivos")
-    if "ultima_vez" not in columnas_dispositivos:
-        conn.execute("ALTER TABLE dispositivos ADD COLUMN ultima_vez TEXT DEFAULT (datetime('now','localtime'))")
-        print("Migracion: columna ultima_vez agregada a dispositivos")
+    _crear_admin_por_defecto()
 
 
 def _crear_admin_por_defecto():
@@ -117,26 +102,30 @@ def verificar_admin(password: str) -> bool:
 def crear_sesion() -> str:
     token = secrets.token_urlsafe(32)
     with get_connection() as conn:
-        conn.execute("""
-            INSERT INTO admin_sessions (token, expira)
-            VALUES (?, datetime('now', '+8 hours'))
-        """, (token,))
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO admin_sessions (token, expira)
+                VALUES (%s, CURRENT_TIMESTAMP + INTERVAL '8 hours')
+            """, (token,))
         conn.commit()
     return token
 
 
 def verificar_sesion(token: str) -> bool:
     with get_connection() as conn:
-        row = conn.execute("""
-            SELECT token FROM admin_sessions
-            WHERE token = ? AND expira > datetime('now')
-        """, (token,)).fetchone()
-        return row is not None
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT token FROM admin_sessions
+                WHERE token = %s AND expira > CURRENT_TIMESTAMP
+            """, (token,))
+            row = cur.fetchone()
+            return row is not None
 
 
 def cerrar_sesion(token: str):
     with get_connection() as conn:
-        conn.execute("DELETE FROM admin_sessions WHERE token = ?", (token,))
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM admin_sessions WHERE token = %s", (token,))
         conn.commit()
 
 
@@ -144,103 +133,114 @@ def cerrar_sesion(token: str):
 
 def registrar_dispositivo(device_id: str):
     with get_connection() as conn:
-        existing = conn.execute(
-            "SELECT device_id FROM dispositivos WHERE device_id = ?", (device_id,)
-        ).fetchone()
-        if existing:
-            conn.execute("""
-                UPDATE dispositivos SET ultima_vez = datetime('now','localtime')
-                WHERE device_id = ?
-            """, (device_id,))
-        else:
-            conn.execute(
-                "INSERT INTO dispositivos (device_id) VALUES (?)", (device_id,)
-            )
+        with conn.cursor() as cur:
+            cur.execute("SELECT device_id FROM dispositivos WHERE device_id = %s", (device_id,))
+            existing = cur.fetchone()
+            if existing:
+                cur.execute("""
+                    UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP
+                    WHERE device_id = %s
+                """, (device_id,))
+            else:
+                cur.execute(
+                    "INSERT INTO dispositivos (device_id) VALUES (%s)", (device_id,)
+                )
         conn.commit()
 
 
 def obtener_dispositivos():
     with get_connection() as conn:
-        rows = conn.execute("""
-            SELECT
-                d.device_id AS device_id,
-                d.nombre AS nombre,
-                d.primera_vez AS primera_vez,
-                d.ultima_vez AS ultima_vez,
-                COUNT(h.id) AS total_urls
-            FROM dispositivos d
-            LEFT JOIN historial h ON d.device_id = h.device_id
-            GROUP BY d.device_id
-            ORDER BY d.ultima_vez DESC
-        """).fetchall()
-        return [dict(r) for r in rows]
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    d.device_id AS device_id,
+                    d.nombre AS nombre,
+                    d.primera_vez AS primera_vez,
+                    d.ultima_vez AS ultima_vez,
+                    COUNT(h.id) AS total_urls
+                FROM dispositivos d
+                LEFT JOIN historial h ON d.device_id = h.device_id
+                GROUP BY d.device_id, d.nombre, d.primera_vez, d.ultima_vez
+                ORDER BY d.ultima_vez DESC
+            """)
+            rows = cur.fetchall()
+            return [dict(r) for r in rows]
 
 
 # ── Historial ─────────────────────────────────────────────────────────────────
 
 def guardar_analisis(data: dict, device_id: str = "unknown"):
     with get_connection() as conn:
-        conn.execute("""
-            INSERT INTO historial (device_id, url, dominio, clasificacion, riesgo, accion, modelo)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            device_id,
-            data.get("url", ""),
-            data.get("dominio", ""),
-            data.get("clasificacion", ""),
-            data.get("riesgo", 0),
-            data.get("accion", ""),
-            data.get("modelo", ""),
-        ))
-        conn.execute("""
-            UPDATE dispositivos SET ultima_vez = datetime('now','localtime'),
-            total_urls = total_urls + 1
-            WHERE device_id = ?
-        """, (device_id,))
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO historial (device_id, url, dominio, clasificacion, riesgo, accion, modelo)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (
+                device_id,
+                data.get("url", ""),
+                data.get("dominio", ""),
+                data.get("clasificacion", ""),
+                data.get("riesgo", 0),
+                data.get("accion", ""),
+                data.get("modelo", ""),
+            ))
+            cur.execute("""
+                UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP,
+                total_urls = total_urls + 1
+                WHERE device_id = %s
+            """, (device_id,))
         conn.commit()
 
 
 def obtener_historial(device_id: str = None, limit: int = 100):
     with get_connection() as conn:
-        if device_id:
-            rows = conn.execute("""
-                SELECT * FROM historial WHERE device_id = ?
-                ORDER BY fecha DESC LIMIT ?
-            """, (device_id, limit)).fetchall()
-        else:
-            rows = conn.execute("""
-                SELECT * FROM historial ORDER BY fecha DESC LIMIT ?
-            """, (limit,)).fetchall()
-        return [dict(r) for r in rows]
+        with conn.cursor() as cur:
+            if device_id:
+                cur.execute("""
+                    SELECT * FROM historial WHERE device_id = %s
+                    ORDER BY fecha DESC LIMIT %s
+                """, (device_id, limit))
+            else:
+                cur.execute("""
+                    SELECT * FROM historial ORDER BY fecha DESC LIMIT %s
+                """, (limit,))
+            rows = cur.fetchall()
+            return [dict(r) for r in rows]
 
 
 def obtener_estadisticas():
     with get_connection() as conn:
-        total = conn.execute("SELECT COUNT(*) as c FROM historial").fetchone()["c"]
-        bloqueadas = conn.execute(
-            "SELECT COUNT(*) as c FROM historial WHERE accion='Bloqueado'"
-        ).fetchone()["c"]
-        dispositivos = conn.execute(
-            "SELECT COUNT(*) as c FROM dispositivos"
-        ).fetchone()["c"]
-        por_tipo = conn.execute("""
-            SELECT clasificacion, COUNT(*) as total
-            FROM historial GROUP BY clasificacion
-        """).fetchall()
-        return {
-            "total": total,
-            "bloqueadas": bloqueadas,
-            "dispositivos": dispositivos,
-            "por_tipo": [dict(r) for r in por_tipo],
-        }
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) as c FROM historial")
+            total = cur.fetchone()["c"]
+
+            cur.execute("SELECT COUNT(*) as c FROM historial WHERE accion='Bloqueado'")
+            bloqueadas = cur.fetchone()["c"]
+
+            cur.execute("SELECT COUNT(*) as c FROM dispositivos")
+            dispositivos = cur.fetchone()["c"]
+
+            cur.execute("""
+                SELECT clasificacion, COUNT(*) as total
+                FROM historial GROUP BY clasificacion
+            """)
+            por_tipo = cur.fetchall()
+
+            return {
+                "total": total,
+                "bloqueadas": bloqueadas,
+                "dispositivos": dispositivos,
+                "por_tipo": [dict(r) for r in por_tipo],
+            }
 
 
 def limpiar_historial(device_id: str = None):
     with get_connection() as conn:
-        if device_id:
-            conn.execute("DELETE FROM historial WHERE device_id = ?", (device_id,))
-        else:
-            conn.execute("DELETE FROM historial")
+        with conn.cursor() as cur:
+            if device_id:
+                cur.execute("DELETE FROM historial WHERE device_id = %s", (device_id,))
+            else:
+                cur.execute("DELETE FROM historial")
         conn.commit()
 
 
@@ -248,31 +248,33 @@ def limpiar_historial(device_id: str = None):
 
 def agregar_blacklist(device_id: str, patron: str, tipo: str = "palabra"):
     with get_connection() as conn:
-        conn.execute("""
-            INSERT INTO blacklist (device_id, patron, tipo) VALUES (?, ?, ?)
-        """, (device_id, patron.lower().strip(), tipo))
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO blacklist (device_id, patron, tipo) VALUES (%s, %s, %s)
+            """, (device_id, patron.lower().strip(), tipo))
         conn.commit()
 
 
 def eliminar_blacklist(blacklist_id: int):
     with get_connection() as conn:
-        conn.execute("DELETE FROM blacklist WHERE id = ?", (blacklist_id,))
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM blacklist WHERE id = %s", (blacklist_id,))
         conn.commit()
 
 
 def obtener_blacklist(device_id: str = None):
     with get_connection() as conn:
-        if device_id:
-            rows = conn.execute("""
-                SELECT * FROM blacklist
-                WHERE device_id = ? OR device_id = '*'
-                ORDER BY creado DESC
-            """, (device_id,)).fetchall()
-        else:
-            rows = conn.execute(
-                "SELECT * FROM blacklist ORDER BY creado DESC"
-            ).fetchall()
-        return [dict(r) for r in rows]
+        with conn.cursor() as cur:
+            if device_id:
+                cur.execute("""
+                    SELECT * FROM blacklist
+                    WHERE device_id = %s OR device_id = '*'
+                    ORDER BY creado DESC
+                """, (device_id,))
+            else:
+                cur.execute("SELECT * FROM blacklist ORDER BY creado DESC")
+            rows = cur.fetchall()
+            return [dict(r) for r in rows]
 
 
 def verificar_blacklist(url: str, device_id: str) -> dict:
