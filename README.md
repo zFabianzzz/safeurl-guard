@@ -16,7 +16,7 @@ Vamos a instalar el proyecto completo en tu computadora usando **Visual Studio C
 
 | Programa | Dónde descargarlo |
 |---|---|
-| **Python 3.11 o más nuevo** | [python.org/downloads](https://www.python.org/downloads/) |
+| **Python 3.11 o 12** | [python.org/downloads](https://www.python.org/downloads/) |
 | **Visual Studio Code** | [code.visualstudio.com](https://code.visualstudio.com/) |
 | **Google Chrome** | [google.com/chrome](https://www.google.com/chrome/) |
 
