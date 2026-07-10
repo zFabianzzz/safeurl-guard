@@ -60,7 +60,40 @@ def init_db():
             )
         """)
         conn.commit()
+
+        # ── MIGRACIÓN: agrega columnas faltantes en tablas que ya existían
+        # con un schema viejo (por ejemplo la base de datos persistida en Render
+        # antes de que agregáramos multi-dispositivo) ──
+        _migrar_columnas(conn)
+        conn.commit()
+
         _crear_admin_por_defecto()
+
+
+def _migrar_columnas(conn):
+    """Agrega columnas nuevas a tablas que ya existían con un schema viejo.
+    CREATE TABLE IF NOT EXISTS no modifica tablas ya creadas, así que si la
+    base de datos en disco es de una versión anterior del proyecto, hay que
+    parcharla a mano con ALTER TABLE."""
+
+    columnas_historial = [row[1] for row in conn.execute("PRAGMA table_info(historial)").fetchall()]
+    if "device_id" not in columnas_historial:
+        conn.execute("ALTER TABLE historial ADD COLUMN device_id TEXT NOT NULL DEFAULT 'unknown'")
+        print("Migracion: columna device_id agregada a historial")
+
+    columnas_dispositivos = [row[1] for row in conn.execute("PRAGMA table_info(dispositivos)").fetchall()]
+    if "total_urls" not in columnas_dispositivos:
+        conn.execute("ALTER TABLE dispositivos ADD COLUMN total_urls INTEGER DEFAULT 0")
+        print("Migracion: columna total_urls agregada a dispositivos")
+    if "nombre" not in columnas_dispositivos:
+        conn.execute("ALTER TABLE dispositivos ADD COLUMN nombre TEXT")
+        print("Migracion: columna nombre agregada a dispositivos")
+    if "primera_vez" not in columnas_dispositivos:
+        conn.execute("ALTER TABLE dispositivos ADD COLUMN primera_vez TEXT DEFAULT (datetime('now','localtime'))")
+        print("Migracion: columna primera_vez agregada a dispositivos")
+    if "ultima_vez" not in columnas_dispositivos:
+        conn.execute("ALTER TABLE dispositivos ADD COLUMN ultima_vez TEXT DEFAULT (datetime('now','localtime'))")
+        print("Migracion: columna ultima_vez agregada a dispositivos")
 
 
 def _crear_admin_por_defecto():
@@ -73,7 +106,6 @@ def hash_password(password: str) -> str:
 
 
 def verificar_admin(password: str) -> bool:
-    import os
     admin_hash = os.environ.get("ADMIN_PASSWORD_HASH", "")
     if not admin_hash:
         # Si no hay variable de entorno, usar contraseña por defecto hasheada
@@ -130,7 +162,12 @@ def registrar_dispositivo(device_id: str):
 def obtener_dispositivos():
     with get_connection() as conn:
         rows = conn.execute("""
-            SELECT d.*, COUNT(h.id) as total_urls
+            SELECT
+                d.device_id AS device_id,
+                d.nombre AS nombre,
+                d.primera_vez AS primera_vez,
+                d.ultima_vez AS ultima_vez,
+                COUNT(h.id) AS total_urls
             FROM dispositivos d
             LEFT JOIN historial h ON d.device_id = h.device_id
             GROUP BY d.device_id
