@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeURL Guard — Panel Administrador</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#030b14;--bg2:#060f1c;--card:#0a1628;--card2:#0d1f35;
+  --border:#112240;--border2:#1a3560;
+  --text:#cdd9e8;--text2:#7a9bb5;--text3:#3d5a78;
+  --accent:#3b82f6;--green:#22c55e;--yellow:#f59e0b;
+  --red:#ef4444;--orange:#f97316;--purple:#a855f7;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
+
+/* LOGIN */
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
+}
+.login-card{
+  background:var(--card);border:1px solid var(--border2);border-radius:16px;
+  padding:40px;width:380px;text-align:center;
+}
+.login-logo{font-size:48px;margin-bottom:16px}
+.login-card h1{font-size:20px;font-weight:700;margin-bottom:6px}
+.login-card p{font-size:12px;color:var(--text2);margin-bottom:28px}
+.login-card input{
+  width:100%;padding:12px 16px;background:var(--bg2);border:1px solid var(--border2);
+  border-radius:10px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px;
+  font-family:inherit;
+}
+.login-card input:focus{border-color:var(--accent)}
+.login-card button{
+  width:100%;padding:12px;background:var(--accent);border:none;border-radius:10px;
+  color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+.login-card button:hover{background:#1d4ed8}
+.login-error{color:var(--red);font-size:12px;margin-top:10px;display:none}
+
+/* LAYOUT */
+#app-screen{display:none}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:220px;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;
+}
+.sidebar-logo{
+  padding:20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-icon{
+  width:34px;height:34px;background:var(--accent);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.logo-text{font-size:13px;font-weight:700;color:#fff}
+.logo-sub{font-size:10px;color:var(--text3)}
+.sidebar-nav{padding:12px 8px;flex:1}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:8px 12px 4px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);
+  transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;
+  font-family:inherit;
+}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:rgba(59,130,246,0.15);color:var(--accent)}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border)}
+.logout-btn{
+  width:100%;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);
+  border-radius:8px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;
+  font-family:inherit;
+}
+.logout-btn:hover{background:rgba(239,68,68,0.2)}
+
+/* MAIN */
+.main{margin-left:220px;flex:1}
+.topbar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-size:16px;font-weight:700;color:#fff}
+.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.content{padding:24px 28px}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-card.blue::before{background:var(--accent)}
+.kpi-card.green::before{background:var(--green)}
+.kpi-card.red::before{background:var(--red)}
+.kpi-card.purple::before{background:var(--purple)}
+.kpi-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:800;font-family:monospace}
+.kpi-card.blue .kpi-value{color:var(--accent)}
+.kpi-card.green .kpi-value{color:var(--green)}
+.kpi-card.red .kpi-value{color:var(--red)}
+.kpi-card.purple .kpi-value{color:var(--purple)}
+
+/* TABLE CARD */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-header{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.table-title{font-size:13px;font-weight:700;color:#fff}
+table{width:100%;border-collapse:collapse}
+thead th{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+  color:var(--text3);padding:10px 20px;text-align:left;border-bottom:1px solid var(--border);
+}
+tbody tr{border-bottom:1px solid rgba(17,34,64,0.6);transition:background 0.1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,0.02)}
+tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
+.td-mono{font-family:monospace;font-size:11px;color:var(--text)}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px}
+.badge.safe{background:rgba(34,197,94,0.12);color:var(--green)}
+.badge.warn{background:rgba(245,158,11,0.12);color:var(--yellow)}
+.badge.danger{background:rgba(239,68,68,0.12);color:var(--red)}
+.badge.admin{background:rgba(168,85,247,0.12);color:var(--purple)}
+.badge.info{background:rgba(59,130,246,0.12);color:var(--accent)}
+.risk-pill{font-family:monospace;font-size:11px;font-weight:700}
+.risk-pill.low{color:var(--green)}
+.risk-pill.mid{color:var(--yellow)}
+.risk-pill.high{color:var(--red)}
+.device-id{font-family:monospace;font-size:11px;background:rgba(59,130,246,0.08);color:var(--accent);padding:2px 8px;border-radius:4px}
+
+/* BUTTONS */
+.btn{
+  padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  border:none;font-family:inherit;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#1d4ed8}
+.btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.25)}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* BLACKLIST FORM */
+.bl-form{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.bl-form input,.bl-form select{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:8px;
+  padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:inherit;
+}
+.bl-form input{flex:1;min-width:200px}
+.bl-form input:focus,.bl-form select:focus{border-color:var(--accent)}
+.bl-form select{background:var(--bg2)}
+
+/* DEVICE SELECT */
+.device-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.device-filter select{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:8px;
+  padding:6px 12px;color:var(--text);font-size:12px;outline:none;font-family:inherit;
+  cursor:pointer;
+}
+
+/* EMPTY */
+.empty{padding:30px;text-align:center;color:var(--text3);font-size:12px}
+
+/* REFRESH */
+.refresh-btn{
+  background:var(--card2);border:1px solid var(--border2);color:var(--text2);
+  padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  font-family:inherit;
+}
+.refresh-btn:hover{background:var(--border);color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🛡️</div>
+    <h1>SafeURL Guard</h1>
+    <p>Panel de Administrador — Acceso restringido</p>
+    <input type="password" id="admin-password" placeholder="Contraseña de administrador" autofocus>
+    <button id="btn-login">Iniciar sesión</button>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🛡️</div>
+        <div>
+          <div class="logo-text">SafeURL Guard</div>
+          <div class="logo-sub">Panel Admin</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <button class="nav-item active" data-page="dashboard">📊 Dashboard</button>
+        <button class="nav-item" data-page="dispositivos">💻 Dispositivos</button>
+        <button class="nav-item" data-page="historial">📋 Historial</button>
+        <div class="nav-section" style="margin-top:8px">Control</div>
+        <button class="nav-item" data-page="blacklist">🚫 Blacklist</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="btn-logout">🔓 Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title" id="page-title">Dashboard</div>
+          <div class="topbar-sub" id="page-sub">Vista general del sistema</div>
+        </div>
+        <button class="refresh-btn" id="btn-refresh">🔄 Actualizar</button>
+      </div>
+
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+          <div class="kpi-grid">
+            <div class="kpi-card blue"><div class="kpi-label">Total análisis</div><div class="kpi-value" id="kpi-total">–</div></div>
+            <div class="kpi-card red"><div class="kpi-label">Bloqueadas</div><div class="kpi-value" id="kpi-blocked">–</div></div>
+            <div class="kpi-card purple"><div class="kpi-label">Dispositivos</div><div class="kpi-value" id="kpi-devices">–</div></div>
+            <div class="kpi-card green"><div class="kpi-label">Precisión ML</div><div class="kpi-value" id="kpi-acc">–</div></div>
+          </div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">Últimas URLs analizadas (todos los dispositivos)</span></div>
+            <table>
+              <thead><tr><th>Dispositivo</th><th>URL</th><th>Clasificación</th><th>Riesgo</th><th>Acción</th><th>Fecha</th></tr></thead>
+              <tbody id="dash-tbody"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DISPOSITIVOS -->
+        <div class="page" id="page-dispositivos">
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">Dispositivos registrados</span></div>
+            <table>
+              <thead><tr><th>Device ID</th><th>Primera conexión</th><th>Última conexión</th><th>Total URLs</th><th>Acciones</th></tr></thead>
+              <tbody id="devices-tbody"><tr><td colspan="5" class="empty">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div class="page" id="page-historial">
+          <div class="table-card">
+            <div class="table-header">
+              <span class="table-title">Historial por dispositivo</span>
+              <div class="device-filter">
+                <select id="hist-device-filter"><option value="">Todos los dispositivos</option></select>
+                <button class="btn btn-danger btn-sm" id="btn-clear-hist">🗑️ Limpiar selección</button>
+              </div>
+            </div>
+            <table>
+              <thead><tr><th>Dispositivo</th><th>URL</th><th>Clasificación</th><th>Riesgo</th><th>Acción</th><th>Fecha</th></tr></thead>
+              <tbody id="hist-tbody"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BLACKLIST -->
+        <div class="page" id="page-blacklist">
+          <div class="table-card">
+            <div class="table-header">
+              <span class="table-title">Blacklist — Bloqueo por patrón</span>
+            </div>
+            <!-- Formulario agregar -->
+            <div class="bl-form">
+              <select id="bl-device-select">
+                <option value="*">🌐 Todos los dispositivos</option>
+              </select>
+              <input type="text" id="bl-patron" placeholder="Palabra o URL a bloquear (ej: casino, phishing.tk)">
+              <button class="btn btn-primary" id="btn-add-bl">➕ Agregar bloqueo</button>
+            </div>
+            <table>
+              <thead><tr><th>Dispositivo</th><th>Patrón bloqueado</th><th>Tipo</th><th>Fecha</th><th>Acción</th></tr></thead>
+              <tbody id="bl-tbody"><tr><td colspan="5" class="empty">Sin entradas en la blacklist</td></tr></tbody>
+            </table>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px">
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">ℹ️ Cómo funciona la blacklist</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.6">
+              • <strong>Todos los dispositivos (★)</strong> — el bloqueo aplica a TODOS los usuarios de la extensión<br>
+              • <strong>Device ID específico</strong> — solo ese dispositivo es bloqueado<br>
+              • El bloqueo es <strong>inmediato</strong> — la extensión consulta la blacklist antes de cada análisis<br>
+              • Si la URL contiene la palabra/patrón, muestra pantalla de bloqueo <strong>sin opción de continuar</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const API = '';
+let TOKEN = '';
+let dispositivos_cache = [];
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-login').addEventListener('click', login);
+document.getElementById('admin-password').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+
+async function login() {
+  const pwd = document.getElementById('admin-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  try {
+    const r = await fetch(API + '/admin/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({password: pwd})
+    });
+    if (!r.ok) { errEl.style.display='block'; return; }
+    const data = await r.json();
+    TOKEN = data.token;
+    sessionStorage.setItem('admin_token', TOKEN);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    loadAll();
+  } catch(e) {
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  await fetch(API + '/admin/logout', { method:'POST', headers: authHeaders() });
+  sessionStorage.removeItem('admin_token');
+  location.reload();
+});
+
+function authHeaders() {
+  return { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + TOKEN };
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+
+const pageTitles = {
+  dashboard: ['Dashboard', 'Vista general del sistema'],
+  dispositivos: ['Dispositivos', 'Todos los dispositivos con la extensión instalada'],
+  historial: ['Historial', 'URLs analizadas por cada dispositivo'],
+  blacklist: ['Blacklist', 'Control de URLs bloqueadas por dispositivo'],
+};
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + page).classList.add('active');
+    document.getElementById('page-title').textContent = pageTitles[page][0];
+    document.getElementById('page-sub').textContent = pageTitles[page][1];
+    if (page === 'historial') loadHistorial();
+    if (page === 'blacklist') loadBlacklist();
+    if (page === 'dispositivos') loadDispositivos();
+  });
+});
+
+document.getElementById('btn-refresh').addEventListener('click', loadAll);
+
+// ── DATA LOADING ──────────────────────────────────────────────────────────────
+
+async function loadAll() {
+  await Promise.all([loadStats(), loadDashHistorial(), loadDispositivos()]);
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch(API + '/admin/estadisticas', {headers: authHeaders()});
+    const d = await r.json();
+    document.getElementById('kpi-total').textContent = d.total || 0;
+    document.getElementById('kpi-blocked').textContent = d.bloqueadas || 0;
+    document.getElementById('kpi-devices').textContent = d.dispositivos || 0;
+    document.getElementById('kpi-acc').textContent = d.modelo_accuracy ? Math.round(d.modelo_accuracy*100)+'%' : 'N/A';
+  } catch(e) { console.error(e); }
+}
+
+async function loadDashHistorial() {
+  try {
+    const r = await fetch(API + '/admin/historial?limit=30', {headers: authHeaders()});
+    const items = await r.json();
+    renderHistorialTable('dash-tbody', items);
+  } catch(e) {}
+}
+
+async function loadDispositivos() {
+  try {
+    const r = await fetch(API + '/admin/dispositivos', {headers: authHeaders()});
+    dispositivos_cache = await r.json();
+    renderDispositivos(dispositivos_cache);
+    populateDeviceSelects(dispositivos_cache);
+  } catch(e) {}
+}
+
+async function loadHistorial() {
+  const deviceId = document.getElementById('hist-device-filter').value;
+  const url = API + '/admin/historial?limit=100' + (deviceId ? '&device_id='+deviceId : '');
+  try {
+    const r = await fetch(url, {headers: authHeaders()});
+    const items = await r.json();
+    renderHistorialTable('hist-tbody', items);
+  } catch(e) {}
+}
+
+async function loadBlacklist() {
+  try {
+    const r = await fetch(API + '/admin/blacklist', {headers: authHeaders()});
+    const items = await r.json();
+    renderBlacklist(items);
+  } catch(e) {}
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+
+function riskClass(r) { return r>=70?'high':r>=40?'mid':'low'; }
+function badgeClass(c) {
+  if(c==='Segura') return 'safe';
+  if(c==='Bloqueado por admin') return 'admin';
+  if(['Phishing','Malware','Defacement'].includes(c)) return 'danger';
+  return 'warn';
+}
+
+function renderHistorialTable(tbodyId, items) {
+  const tbody = document.getElementById(tbodyId);
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin registros</td></tr>'; return; }
+  tbody.innerHTML = items.map(i => {
+    let domain = i.url; try { domain = new URL(i.url).hostname; } catch(e){}
+    return `<tr>
+      <td><span class="device-id">${i.device_id ? i.device_id.substring(0,12)+'...' : '–'}</span></td>
+      <td class="td-mono" title="${i.url}" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${domain}</td>
+      <td><span class="badge ${badgeClass(i.clasificacion)}">${i.clasificacion}</span></td>
+      <td><span class="risk-pill ${riskClass(i.riesgo)}">${i.riesgo}%</span></td>
+      <td style="color:${i.accion==='Bloqueado'?'var(--red)':i.accion==='Advertencia'?'var(--yellow)':'var(--green)'}">${i.accion}</td>
+      <td style="font-size:11px;color:var(--text3)">${i.fecha||'–'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDispositivos(items) {
+  const tbody = document.getElementById('devices-tbody');
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin dispositivos registrados aún</td></tr>'; return; }
+  tbody.innerHTML = items.map(d => `<tr>
+    <td><span class="device-id">${d.device_id}</span></td>
+    <td style="font-size:11px;color:var(--text3)">${d.primera_vez||'–'}</td>
+    <td style="font-size:11px;color:var(--text3)">${d.ultima_vez||'–'}</td>
+    <td style="font-weight:700;color:var(--accent)">${d.total_urls||0}</td>
+    <td>
+      <button class="btn btn-danger btn-sm" onclick="clearDeviceHistory('${d.device_id}')">🗑️ Limpiar</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderBlacklist(items) {
+  const tbody = document.getElementById('bl-tbody');
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin entradas en la blacklist</td></tr>'; return; }
+  tbody.innerHTML = items.map(i => `<tr>
+    <td>${i.device_id==='*'?'<span class="badge info">🌐 Todos</span>':'<span class="device-id">'+i.device_id.substring(0,14)+'...</span>'}</td>
+    <td style="font-family:monospace;color:var(--red)">${i.patron}</td>
+    <td><span class="badge warn">${i.tipo}</span></td>
+    <td style="font-size:11px;color:var(--text3)">${i.creado||'–'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeBlacklist(${i.id})">❌ Eliminar</button></td>
+  </tr>`).join('');
+}
+
+function populateDeviceSelects(devices) {
+  const selHist = document.getElementById('hist-device-filter');
+  const selBl = document.getElementById('bl-device-select');
+  const prev = selHist.value;
+  selHist.innerHTML = '<option value="">Todos los dispositivos</option>';
+  selBl.innerHTML = '<option value="*">🌐 Todos los dispositivos</option>';
+  devices.forEach(d => {
+    selHist.innerHTML += `<option value="${d.device_id}">${d.device_id.substring(0,20)}...</option>`;
+    selBl.innerHTML += `<option value="${d.device_id}">${d.device_id.substring(0,20)}...</option>`;
+  });
+  if (prev) selHist.value = prev;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+
+document.getElementById('hist-device-filter').addEventListener('change', loadHistorial);
+
+document.getElementById('btn-clear-hist').addEventListener('click', async () => {
+  const deviceId = document.getElementById('hist-device-filter').value;
+  const msg = deviceId ? 'dispositivo seleccionado' : 'TODOS los dispositivos';
+  if (!confirm(`¿Eliminar historial de ${msg}?`)) return;
+  const url = API + '/admin/historial/' + (deviceId || 'all');
+  await fetch(url, { method:'DELETE', headers: authHeaders() });
+  loadHistorial();
+  loadStats();
+});
+
+async function clearDeviceHistory(deviceId) {
+  if (!confirm(`¿Eliminar historial de ${deviceId}?`)) return;
+  await fetch(API + '/admin/historial/' + deviceId, { method:'DELETE', headers: authHeaders() });
+  loadAll();
+}
+
+document.getElementById('btn-add-bl').addEventListener('click', async () => {
+  const deviceId = document.getElementById('bl-device-select').value;
+  const patron = document.getElementById('bl-patron').value.trim();
+  if (!patron) { alert('Escribe un patrón para bloquear'); return; }
+  await fetch(API + '/admin/blacklist', {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ device_id: deviceId, patron: patron, tipo: 'palabra' })
+  });
+  document.getElementById('bl-patron').value = '';
+  loadBlacklist();
+});
+
+async function removeBlacklist(id) {
+  if (!confirm('¿Eliminar este bloqueo?')) return;
+  await fetch(API + '/admin/blacklist/' + id, { method:'DELETE', headers: authHeaders() });
+  loadBlacklist();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+const savedToken = sessionStorage.getItem('admin_token');
+if (savedToken) {
+  TOKEN = savedToken;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  loadAll();
+}
+
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>

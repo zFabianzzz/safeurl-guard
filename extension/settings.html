@@ -4,82 +4,102 @@
   <meta charset="UTF-8">
   <title>SafeURL Guard — Configuración</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #06111f;
-      color: #e2e8f0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-    .container { max-width: 500px; width: 100%; }
-    .header { margin-bottom: 28px; }
-    .header h1 { font-size: 20px; font-weight: 700; }
-    .header p { font-size: 12px; color: #7a9bb5; margin-top: 4px; }
-    .card {
-      background: #0b1b2e; border: 1px solid #14345c;
-      border-radius: 14px; overflow: hidden; margin-bottom: 16px;
-    }
-    .card-title {
-      padding: 12px 18px; font-size: 11px; font-weight: 700;
-      color: #7a9bb5; text-transform: uppercase; letter-spacing: 0.8px;
-      border-bottom: 1px solid #14345c;
-    }
-    .setting-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 18px; border-bottom: 1px solid rgba(20,52,92,0.5);
-    }
-    .setting-row:last-child { border-bottom: none; }
-    .setting-info h3 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-    .setting-info p { font-size: 11px; color: #7a9bb5; }
-    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
-    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .slider {
-      position: absolute; cursor: pointer; inset: 0;
-      background: #1e3554; border-radius: 24px; transition: 0.3s;
-    }
-    .slider:before {
-      content: ""; position: absolute;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: #4a6080; bottom: 3px; left: 3px; transition: 0.3s;
-    }
-    input:checked + .slider { background: #2563eb; }
-    input:checked + .slider:before { transform: translateX(20px); background: white; }
-    .sens-group { display: flex; gap: 6px; }
-    .sens-btn {
-      padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
-      cursor: pointer; border: 1px solid #14345c;
-      background: transparent; color: #7a9bb5; transition: all 0.15s;
-      font-family: inherit;
-    }
-    .sens-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
-    .sens-btn:hover:not(.active) { border-color: #2563eb; color: #e2e8f0; }
-    .save-btn {
-      width: 100%; padding: 12px; background: #2563eb;
-      border: none; border-radius: 10px; color: white;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      transition: background 0.15s; margin-top: 8px;
-      font-family: inherit;
-    }
-    .save-btn:hover { background: #1d4ed8; }
-    .success-msg {
-      text-align: center; font-size: 12px; color: #22c55e;
-      padding: 10px; display: none; margin-top: 8px;
-      background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
-      border-radius: 8px;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:#06111f;color:#e2e8f0;min-height:100vh;display:flex;justify-content:center;padding:40px 20px}
+    .container{max-width:520px;width:100%}
+    .header{margin-bottom:24px}
+    .header h1{font-size:20px;font-weight:700}
+    .header p{font-size:12px;color:#7a9bb5;margin-top:4px}
+    .card{background:#0b1b2e;border:1px solid #14345c;border-radius:14px;overflow:hidden;margin-bottom:16px}
+    .card-title{padding:12px 18px;font-size:11px;font-weight:700;color:#7a9bb5;text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid #14345c}
+    .setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(20,52,92,0.5)}
+    .setting-row:last-child{border-bottom:none}
+    .setting-info h3{font-size:13px;font-weight:600;margin-bottom:2px}
+    .setting-info p{font-size:11px;color:#7a9bb5}
+    .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0;position:absolute}
+    .slider{position:absolute;cursor:pointer;inset:0;background:#1e3554;border-radius:24px;transition:0.3s}
+    .slider:before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#4a6080;bottom:3px;left:3px;transition:0.3s}
+    input:checked+.slider{background:#2563eb}
+    input:checked+.slider:before{transform:translateX(20px);background:white}
+
+    /* Leyenda */
+    .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 18px}
+    .legend-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02)}
+    .legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+    .legend-dot.green{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,0.5)}
+    .legend-dot.yellow{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,0.5)}
+    .legend-dot.red{background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.5)}
+    .legend-dot.purple{background:#a855f7;box-shadow:0 0 8px rgba(168,85,247,0.5)}
+    .legend-info h4{font-size:12px;font-weight:700;margin-bottom:3px}
+    .legend-info p{font-size:10px;color:#7a9bb5;line-height:1.5}
+    .legend-info h4.green{color:#22c55e}
+    .legend-info h4.yellow{color:#f59e0b}
+    .legend-info h4.red{color:#ef4444}
+    .legend-info h4.purple{color:#a855f7}
+
+    /* Device ID */
+    .device-box{margin:14px 18px;padding:12px 14px;border-radius:10px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);display:flex;align-items:center;justify-content:space-between}
+    .device-label{font-size:11px;color:#7a9bb5}
+    .device-id{font-family:monospace;font-size:12px;color:#60a5fa;font-weight:700;word-break:break-all}
+
+    .save-btn{width:100%;padding:12px;background:#2563eb;border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s;margin-top:8px;font-family:inherit}
+    .save-btn:hover{background:#1d4ed8}
+    .success-msg{text-align:center;font-size:12px;color:#22c55e;padding:10px;display:none;margin-top:8px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px}
   </style>
 </head>
 <body>
 <div class="container">
-
   <div class="header">
     <h1>⚙️ Configuración de SafeURL Guard</h1>
     <p>Ajusta cómo protege tu navegación</p>
   </div>
 
+  <!-- Leyenda de colores -->
+  <div class="card">
+    <div class="card-title">Guía de colores — qué significa cada alerta</div>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <span class="legend-dot green"></span>
+        <div class="legend-info">
+          <h4 class="green">Verde — Seguro</h4>
+          <p>Sitio legítimo y confiable. Riesgo menor al 40%. Puedes navegar sin preocupaciones.</p>
+        </div>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot yellow"></span>
+        <div class="legend-info">
+          <h4 class="yellow">Amarillo — Sospechoso</h4>
+          <p>Características inusuales. Riesgo entre 40% y 74%. Procede con precaución.</p>
+        </div>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot red"></span>
+        <div class="legend-info">
+          <h4 class="red">Rojo — Bloqueado</h4>
+          <p>Sitio peligroso. Riesgo mayor al 75%. Phishing, malware o defacement detectado.</p>
+        </div>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot purple"></span>
+        <div class="legend-info">
+          <h4 class="purple">Morado — Admin</h4>
+          <p>URL bloqueada por el administrador. No es posible acceder a este sitio.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tu dispositivo -->
+  <div class="card">
+    <div class="card-title">Tu dispositivo</div>
+    <div class="device-box">
+      <span class="device-label">🔑 ID de este dispositivo:</span>
+      <span class="device-id" id="device-id-display">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Protección -->
   <div class="card">
     <div class="card-title">Protección</div>
     <div class="setting-row">
@@ -87,63 +107,27 @@
         <h3>Protección en tiempo real</h3>
         <p>Analiza automáticamente las URLs que visitas</p>
       </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggle-protection">
-        <span class="slider"></span>
-      </label>
+      <label class="toggle"><input type="checkbox" id="toggle-protection"><span class="slider"></span></label>
     </div>
     <div class="setting-row">
       <div class="setting-info">
         <h3>Bloqueo automático</h3>
-        <p>Bloquea sitios maliciosos automáticamente</p>
+        <p>Bloquea sitios maliciosos sin preguntar</p>
       </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggle-block">
-        <span class="slider"></span>
-      </label>
+      <label class="toggle"><input type="checkbox" id="toggle-block"><span class="slider"></span></label>
     </div>
     <div class="setting-row">
       <div class="setting-info">
         <h3>Mostrar advertencias</h3>
-        <p>Muestra notificaciones de sitios peligrosos</p>
+        <p>Notificaciones para sitios sospechosos</p>
       </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggle-notif">
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="setting-row">
-      <div class="setting-info">
-        <h3>Guardar historial</h3>
-        <p>Almacena el historial de análisis realizados</p>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggle-history">
-        <span class="slider"></span>
-      </label>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Nivel de sensibilidad</div>
-    <div class="setting-row">
-      <div class="setting-info">
-        <h3>Sensibilidad de detección</h3>
-        <p>Ajusta el umbral para advertencias y bloqueos</p>
-      </div>
-      <div class="sens-group">
-        <button class="sens-btn" id="sens-bajo">Bajo</button>
-        <button class="sens-btn" id="sens-medio">Medio</button>
-        <button class="sens-btn" id="sens-alto">Alto</button>
-      </div>
+      <label class="toggle"><input type="checkbox" id="toggle-notif"><span class="slider"></span></label>
     </div>
   </div>
 
   <button class="save-btn" id="btn-save">💾 Guardar configuración</button>
   <div class="success-msg" id="success-msg">✅ Configuración guardada correctamente</div>
-
 </div>
-
 <script src="settings.js"></script>
 </body>
 </html>

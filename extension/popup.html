@@ -6,58 +6,43 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg-main: #06111f;
-      --bg-card: #0b1b2e;
-      --border: #14345c;
-      --text: #e2e8f0;
-      --text-muted: #7a9bb5;
-      --blue: #2563eb;
-      --green: #22c55e;
-      --green-bg: rgba(34,197,94,0.12);
-      --green-border: rgba(34,197,94,0.3);
-      --yellow: #f59e0b;
-      --yellow-bg: rgba(245,158,11,0.12);
-      --yellow-border: rgba(245,158,11,0.35);
-      --red: #ef4444;
-      --red-bg: rgba(239,68,68,0.12);
-      --red-border: rgba(239,68,68,0.35);
+      --bg-main: #06111f; --bg-card: #0b1b2e; --border: #14345c;
+      --text: #e2e8f0; --text-muted: #7a9bb5; --blue: #2563eb;
+      --green: #22c55e; --green-bg: rgba(34,197,94,0.12); --green-border: rgba(34,197,94,0.3);
+      --yellow: #f59e0b; --yellow-bg: rgba(245,158,11,0.12); --yellow-border: rgba(245,158,11,0.35);
+      --red: #ef4444; --red-bg: rgba(239,68,68,0.12); --red-border: rgba(239,68,68,0.35);
     }
-    body {
-      width: 360px; min-height: 200px;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg-main); color: var(--text); font-size: 13px;
-    }
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
-    }
+    body { width: 360px; min-height: 200px; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-main); color: var(--text); font-size: 13px; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 10px; border-bottom: 1px solid var(--border); }
     .header-left { display: flex; align-items: center; gap: 10px; }
-    .header-logo { width: 28px; height: 28px; object-fit: contain; }
-    .header-title { font-size: 15px; font-weight: 700; color: #fff; }
-    .icon-btn {
-      background: none; border: none; color: var(--text-muted);
-      cursor: pointer; padding: 4px; border-radius: 6px; font-size: 14px;
-    }
+    .header-logo { width: 26px; height: 26px; object-fit: contain; }
+    .header-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 6px; font-size: 13px; }
     .icon-btn:hover { background: var(--bg-card); color: var(--text); }
-    .tabs { display: flex; padding: 8px 12px 0; gap: 4px; border-bottom: 1px solid var(--border); }
-    .tab {
-      padding: 6px 12px; border-radius: 6px 6px 0 0;
-      font-size: 11px; font-weight: 600; cursor: pointer;
-      color: var(--text-muted); border: 1px solid transparent;
-      border-bottom: none; transition: all 0.15s;
+
+    /* Device ID badge */
+    .device-badge {
+      margin: 8px 12px 0; padding: 6px 10px; border-radius: 8px;
+      background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2);
+      display: flex; align-items: center; justify-content: space-between;
     }
+    .device-badge-label { font-size: 10px; color: var(--text-muted); }
+    .device-badge-id { font-size: 10px; font-family: monospace; color: #60a5fa; font-weight: 600; }
+
+    /* Tabs */
+    .tabs { display: flex; padding: 8px 12px 0; gap: 4px; border-bottom: 1px solid var(--border); }
+    .tab { padding: 6px 12px; border-radius: 6px 6px 0 0; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text-muted); border: 1px solid transparent; border-bottom: none; transition: all 0.15s; }
     .tab.active { background: var(--bg-card); border-color: var(--border); color: var(--text); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .status-card {
-      margin: 12px 12px 0; border-radius: 12px; padding: 14px;
-      border: 1px solid var(--border); background: var(--bg-card); transition: all 0.3s ease;
-    }
+
+    /* Status card */
+    .status-card { margin: 12px 12px 0; border-radius: 12px; padding: 14px; border: 1px solid var(--border); background: var(--bg-card); transition: all 0.3s ease; }
     .status-card.safe { background: var(--green-bg); border-color: var(--green-border); }
     .status-card.warning { background: var(--yellow-bg); border-color: var(--yellow-border); }
     .status-card.danger { background: var(--red-bg); border-color: var(--red-border); }
     .status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .status-icon { font-size: 26px; line-height: 1; }
+    .status-icon { font-size: 24px; line-height: 1; }
     .status-title { font-size: 14px; font-weight: 700; }
     .status-card.safe .status-title { color: var(--green); }
     .status-card.warning .status-title { color: var(--yellow); }
@@ -76,14 +61,10 @@
     .safe .risk-bar-fill { background: var(--green); }
     .warning .risk-bar-fill { background: var(--yellow); }
     .danger .risk-bar-fill { background: var(--red); }
-    .info-grid {
-      margin: 10px 12px 0; background: var(--bg-card);
-      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
-    }
-    .info-row {
-      display: flex; align-items: flex-start; padding: 8px 12px;
-      border-bottom: 1px solid rgba(20,52,92,0.6); gap: 8px;
-    }
+
+    /* Info grid */
+    .info-grid { margin: 10px 12px 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .info-row { display: flex; align-items: flex-start; padding: 8px 12px; border-bottom: 1px solid rgba(20,52,92,0.6); gap: 8px; }
     .info-row:last-child { border-bottom: none; }
     .info-icon { font-size: 12px; color: var(--text-muted); margin-top: 1px; flex-shrink: 0; width: 16px; text-align: center; }
     .info-label { font-size: 11px; color: var(--text-muted); flex-shrink: 0; width: 80px; }
@@ -93,92 +74,44 @@
     .info-value.danger-text { color: var(--red); font-weight: 600; }
     .info-value.blue-text { color: #60a5fa; font-weight: 600; }
     .info-value.muted { color: var(--text-muted); font-style: italic; }
+
+    /* Actions */
     .actions { padding: 10px 12px 12px; }
-    .btn {
-      width: 100%; padding: 9px 10px; border: none; border-radius: 8px;
-      font-size: 12px; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      transition: all 0.15s; font-family: inherit;
-    }
+    .btn { width: 100%; padding: 9px 10px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; font-family: inherit; }
     .btn-primary { background: var(--blue); color: #fff; }
     .btn-primary:hover { background: #1d4ed8; }
-    .btn-danger-soft {
-      background: rgba(239,68,68,0.08); color: var(--red);
-      border: 1px solid rgba(239,68,68,0.25);
-    }
-    .btn-danger-soft:hover { background: rgba(239,68,68,0.15); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .backend-status {
-      margin: 8px 12px 0; padding: 7px 12px; border-radius: 8px;
-      font-size: 11px; display: flex; align-items: center; gap: 6px;
-    }
+
+    /* Backend status */
+    .backend-status { margin: 8px 12px 0; padding: 7px 12px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; gap: 6px; }
     .backend-status.online { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: #4ade80; }
     .backend-status.offline { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .online .status-dot { background: var(--green); animation: pulse-green 2s infinite; }
     .offline .status-dot { background: var(--red); }
     @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* Footer */
     .footer { padding: 6px 12px 10px; display: flex; justify-content: space-between; align-items: center; }
     .footer-link { font-size: 10px; color: var(--text-muted); cursor: pointer; }
     .footer-link:hover { color: var(--text); }
     .footer-version { font-size: 10px; color: rgba(255,255,255,0.15); }
-    .loading-spinner {
-      display: inline-block; width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--blue);
-      border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
+
+    /* Loading spinner */
+    .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Manual */
     .manual-section { padding: 10px 12px 0; }
     .manual-section p { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
     .manual-input-wrap { display: flex; gap: 6px; margin-bottom: 8px; }
-    .manual-input {
-      flex: 1; background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 11px; outline: none;
-    }
+    .manual-input { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 11px; outline: none; }
     .manual-input:focus { border-color: var(--blue); }
     .manual-input::placeholder { color: var(--text-muted); }
-    .btn-analyze-manual {
-      background: var(--blue); color: #fff; border: none;
-      border-radius: 8px; padding: 8px 12px; font-size: 11px;
-      font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit;
-    }
+    .btn-analyze-manual { background: var(--blue); color: #fff; border: none; border-radius: 8px; padding: 8px 12px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
     .btn-analyze-manual:disabled { opacity: 0.5; cursor: not-allowed; }
-    #manual-result {
-      margin-top: 4px; font-size: 11px; padding: 8px 10px;
-      border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border);
-    }
+    #manual-result { margin-top: 4px; font-size: 11px; padding: 8px 10px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border); }
     .hidden { display: none !important; }
-
-    /* Historial */
-    .history-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 12px 4px;
-    }
-    .history-title { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-    .btn-clear-history {
-      background: none; border: none; cursor: pointer;
-      font-size: 10px; color: var(--red); font-weight: 600;
-      padding: 3px 8px; border-radius: 5px; font-family: inherit;
-      border: 1px solid rgba(239,68,68,0.25);
-      transition: all 0.15s;
-    }
-    .btn-clear-history:hover { background: rgba(239,68,68,0.1); }
-    .history-list { padding: 0 12px 8px; max-height: 170px; overflow-y: auto; }
-    .history-item {
-      display: flex; align-items: center; gap: 8px; padding: 7px 0;
-      border-bottom: 1px solid rgba(20,52,92,0.5);
-    }
-    .history-item:last-child { border-bottom: none; }
-    .h-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .h-dot.safe { background: var(--green); }
-    .h-dot.warning { background: var(--yellow); }
-    .h-dot.danger { background: var(--red); }
-    .h-url { flex: 1; font-size: 10px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .h-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; }
-    .h-badge.safe { background: var(--green-bg); color: var(--green); }
-    .h-badge.warning { background: var(--yellow-bg); color: var(--yellow); }
-    .h-badge.danger { background: var(--red-bg); color: var(--red); }
-    .empty-history { padding: 20px; text-align: center; color: var(--text-muted); font-size: 11px; }
   </style>
 </head>
 <body>
@@ -190,10 +123,15 @@
     <button class="icon-btn" id="btn-settings" title="Configuración">⚙️</button>
   </div>
 
+  <!-- Device ID -->
+  <div class="device-badge">
+    <span class="device-badge-label">🔑 Tu ID de dispositivo:</span>
+    <span class="device-badge-id" id="device-id-display">Cargando...</span>
+  </div>
+
   <div class="tabs">
     <div class="tab active" data-tab="main">🛡️ Análisis</div>
     <div class="tab" data-tab="manual">🔍 Manual</div>
-    <div class="tab" data-tab="history">📋 Historial</div>
   </div>
 
   <!-- TAB ANÁLISIS -->
@@ -252,22 +190,10 @@
     <div class="manual-section">
       <p>Ingresa una URL para analizar su nivel de riesgo</p>
       <div class="manual-input-wrap">
-        <input type="text" class="manual-input" id="manual-url-input"
-          placeholder="https://ejemplo-sospechoso.com/login">
+        <input type="text" class="manual-input" id="manual-url-input" placeholder="https://ejemplo-sospechoso.com">
         <button class="btn-analyze-manual" id="btn-manual-analyze">🔍 Analizar</button>
       </div>
       <div id="manual-result" class="hidden"></div>
-    </div>
-  </div>
-
-  <!-- TAB HISTORIAL -->
-  <div class="tab-content" id="tab-history">
-    <div class="history-header">
-      <span class="history-title">Últimas URLs analizadas</span>
-      <button class="btn-clear-history" id="btn-clear-history">🗑️ Limpiar todo</button>
-    </div>
-    <div class="history-list" id="history-list">
-      <div class="empty-history">Cargando historial...</div>
     </div>
   </div>
 
