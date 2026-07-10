@@ -94,15 +94,15 @@ def init_db():
                     riesgo INTEGER,
                     accion TEXT,
                     modelo TEXT,
-                    fecha TEXT DEFAULT (datetime('now','localtime'))
+                    fecha TEXT DEFAULT (datetime('now'))
                 )
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS dispositivos (
                     device_id TEXT PRIMARY KEY,
                     nombre TEXT,
-                    primera_vez TEXT DEFAULT (datetime('now','localtime')),
-                    ultima_vez TEXT DEFAULT (datetime('now','localtime')),
+                    primera_vez TEXT DEFAULT (datetime('now')),
+                    ultima_vez TEXT DEFAULT (datetime('now')),
                     total_urls INTEGER DEFAULT 0
                 )
             """)
@@ -112,13 +112,13 @@ def init_db():
                     device_id TEXT NOT NULL,
                     patron TEXT NOT NULL,
                     tipo TEXT DEFAULT 'palabra',
-                    creado TEXT DEFAULT (datetime('now','localtime'))
+                    creado TEXT DEFAULT (datetime('now'))
                 )
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS admin_sessions (
                     token TEXT PRIMARY KEY,
-                    creado TEXT DEFAULT (datetime('now','localtime')),
+                    creado TEXT DEFAULT (datetime('now')),
                     expira TEXT
                 )
             """)
@@ -176,7 +176,7 @@ def crear_sesion() -> str:
         else:
             cur.execute("""
                 INSERT INTO admin_sessions (token, expira)
-                VALUES (?, datetime('now','localtime','+8 hours'))
+                VALUES (?, datetime('now','+8 hours'))
             """, (token,))
         conn.commit()
     finally:
@@ -194,7 +194,7 @@ def verificar_sesion(token: str) -> bool:
             WHERE token = {ph} AND expira > CURRENT_TIMESTAMP
         """, (token,)) if USE_POSTGRES else cur.execute(f"""
             SELECT token FROM admin_sessions
-            WHERE token = {ph} AND expira > datetime('now','localtime')
+            WHERE token = {ph} AND expira > datetime('now')
         """, (token,))
         row = cur.fetchone()
         return row is not None
@@ -226,7 +226,7 @@ def registrar_dispositivo(device_id: str):
             if USE_POSTGRES:
                 cur.execute(f"UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP, activo = TRUE WHERE device_id = {ph}", (device_id,))
             else:
-                cur.execute(f"UPDATE dispositivos SET ultima_vez = datetime('now','localtime'), activo = 1 WHERE device_id = {ph}", (device_id,))
+                cur.execute(f"UPDATE dispositivos SET ultima_vez = datetime('now'), activo = 1 WHERE device_id = {ph}", (device_id,))
         else:
             cur.execute(f"INSERT INTO dispositivos (device_id) VALUES ({ph})", (device_id,))
         conn.commit()
@@ -315,7 +315,7 @@ def guardar_analisis(data: dict, device_id: str = "unknown"):
             """, (device_id,))
         else:
             cur.execute(f"""
-                UPDATE dispositivos SET ultima_vez = datetime('now','localtime'), total_urls = total_urls + 1, activo = 1
+                UPDATE dispositivos SET ultima_vez = datetime('now'), total_urls = total_urls + 1, activo = 1
                 WHERE device_id = {ph}
             """, (device_id,))
         conn.commit()
