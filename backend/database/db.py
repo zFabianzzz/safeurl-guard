@@ -8,6 +8,7 @@ usaba main.py, para que no haya que tocar el resto del backend.
 import os
 import hashlib
 import secrets
+from urllib.parse import unquote
 
 import psycopg2
 import psycopg2.extras
@@ -278,8 +279,15 @@ def obtener_blacklist(device_id: str = None):
 
 
 def verificar_blacklist(url: str, device_id: str) -> dict:
-    """Verifica si una URL está en la blacklist del dispositivo o global."""
-    url_lower = url.lower()
+    """Verifica si una URL está en la blacklist del dispositivo o global.
+
+    Las URLs que llegan desde el navegador vienen "codificadas" cuando
+    tienen tildes, ñ u otros caracteres especiales (por ejemplo "Patrón"
+    llega como "Patr%C3%B3n"). Por eso decodificamos con unquote() antes
+    de comparar, para que la blacklist funcione también con esas palabras.
+    """
+    url_decodificada = unquote(url)
+    url_lower = url_decodificada.lower()
     blacklist = obtener_blacklist(device_id)
     for item in blacklist:
         if item["patron"] in url_lower:
