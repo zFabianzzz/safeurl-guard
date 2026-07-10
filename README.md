@@ -146,7 +146,7 @@ Para ver el panel de administración, abre en Chrome:
 ```
 http://127.0.0.1:8000/admin
 ```
-La contraseña por defecto es: `SafeURL@Admin2024!`
+La contraseña por defecto es: `****************`
 
 ---
 
