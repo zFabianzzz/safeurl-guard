@@ -1,262 +1,149 @@
-# 🛡️ SafeURL Guard v2.0
+# 🛡️ SafeURL Guard
 
-Extensión de Chrome/Edge que detecta y bloquea URLs maliciosas en tiempo real usando **Machine Learning (Random Forest)** entrenado con más de 750,000 URLs reales.
+**SafeURL Guard** es una extensión para el navegador Chrome que analiza cada página web que visitas y te avisa si podría ser peligrosa (phishing, malware, sitios falsos, etc.), usando un modelo de Inteligencia Artificial entrenado para reconocer patrones de URLs maliciosas.
 
-> **Backend en producción:** https://safeurl-guard.onrender.com
-
----
-
-## 📋 ¿Qué hace esta extensión?
-
-- Analiza automáticamente cada URL que visitas
-- Bloquea sitios peligrosos antes de que carguen
-- Detecta **Phishing**, **Malware** y **Defacement**
-- Muestra el nivel de riesgo en tiempo real (0–100%)
-- Guarda un historial de todas las URLs analizadas
-- Permite analizar URLs manualmente sin tener que visitarlas
+Incluye además un **panel de administración** donde se puede ver qué dispositivos están usando la extensión, revisar el historial de sitios analizados, y bloquear manualmente sitios específicos.
 
 ---
 
-## 🚀 Instalación rápida — Sin instalar Python
+## 🧪 Guía para el laboratorio (instalación local)
 
-Si solo quieres usar la extensión sin configurar nada, sigue estos pasos:
+Esta guía es para tener el proyecto completo — extensión + backend + base de datos — corriendo en tu propia computadora, de forma totalmente local. **No necesitas instalar ninguna base de datos ni configurar nada a mano**: el proyecto crea su propia base de datos local automáticamente la primera vez que lo enciendes.
 
-**1.** Clona o descarga este repositorio
+### Lo único que necesitas instalar antes de empezar
 
-```bash
-git clone https://github.com/zFabianzzz/safeurl-guard.git
-```
-
-**2.** Abre Chrome y ve a `chrome://extensions/`
-
-**3.** Activa el **Modo desarrollador** (esquina superior derecha)
-
-**4.** Clic en **"Cargar descomprimida"**
-
-**5.** Selecciona la carpeta `extension/` dentro del proyecto
-
-```
-safeurl-guard/
-└── extension/   ← selecciona esta carpeta
-```
-
-**6.** ✅ Listo — la extensión aparece en la barra del navegador y funciona automáticamente
-
-> **Nota:** La primera vez puede tardar hasta 60 segundos en responder. Si el popup dice "Backend offline", espera un momento y navega a cualquier página.
-
----
-
-## 🔬 Instalación completa — Ejecutar el backend localmente
-
-Sigue esta opción si quieres ver y modificar el código completo funcionando en tu propia máquina.
-
----
-
-### Requisitos previos
-
-Instala los siguientes programas antes de comenzar:
-
-| Programa | Versión | Enlace |
+| Programa | Para qué sirve | Dónde descargarlo |
 |---|---|---|
-| Python | 3.11.x | https://www.python.org/downloads/release/python-3119/ |
-| Git | Cualquiera | https://git-scm.com/downloads |
-| Google Chrome | Cualquiera | https://www.google.com/chrome/ |
+| **Python 3.11 o más nuevo** | Corre el backend (el "cerebro" que analiza las URLs) | [python.org/downloads](https://www.python.org/downloads/) |
+| **Google Chrome** | Para usar la extensión | [google.com/chrome](https://www.google.com/chrome/) |
 
-> ⚠️ Al instalar Python, marca la casilla **"Add Python to PATH"** antes de hacer clic en Install Now.
+> 💡 **Windows:** al instalar Python, asegúrate de marcar la casilla que dice **"Add Python to PATH"** (aparece en la primera pantalla del instalador). Es fácil pasarla por alto y sin eso los siguientes pasos no van a funcionar.
 
----
-
-### Paso 1 — Clonar el repositorio
-
-Abre una terminal y ejecuta:
-
-```bash
-git clone https://github.com/zFabianzzz/safeurl-guard.git
-cd safeurl-guard
-```
+Nada más que instalar. No hace falta PostgreSQL, Docker, ni ninguna otra herramienta.
 
 ---
 
-### Paso 2 — Crear el entorno virtual
+### Paso 1 — Descargar el proyecto
+
+1. Entra al repositorio del proyecto en GitHub.
+2. Haz clic en el botón verde **"Code"** → **"Download ZIP"**.
+3. Busca el archivo ZIP descargado (normalmente en tu carpeta "Descargas") y descomprímelo (clic derecho → "Extraer todo").
+
+Vas a terminar con una carpeta llamada algo como `safeurl-guard-main`.
+
+### Paso 2 — Abrir una terminal en la carpeta del proyecto
+
+- **Windows:** abre la carpeta del proyecto en el explorador de archivos, haz clic en la barra de direcciones de arriba (donde muestra la ruta de la carpeta), escribe `cmd` y presiona Enter. Se abre una terminal ya ubicada ahí.
+- **Mac:** abre la app "Terminal", escribe `cd ` (con un espacio al final), arrastra la carpeta del proyecto hacia la ventana de la terminal, y presiona Enter.
+
+### Paso 3 — Instalar las dependencias de Python
+
+Copia y pega estos comandos uno por uno en la terminal, presionando Enter después de cada uno:
 
 ```bash
 cd backend
-py -3.11 -m venv venv
+python -m venv venv
 ```
 
----
+Esto crea un "ambiente virtual" — una caja aislada donde se instalan las librerías del proyecto sin afectar el resto de tu computadora.
 
-### Paso 3 — Activar el entorno virtual
+Actívalo:
 
 ```bash
+# Windows:
 venv\Scripts\activate
+
+# Mac:
+source venv/bin/activate
 ```
 
-Sabrás que está activado cuando el prompt muestre `(venv)` al inicio:
+Deberías ver que aparece `(venv)` al inicio de la línea de tu terminal — eso confirma que se activó bien.
 
-```
-(venv) PS C:\...\safeurl-guard\backend>
-```
-
-> Si PowerShell muestra un error de permisos, ejecuta esto primero y vuelve a intentarlo:
-> ```bash
-> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-> ```
-
----
-
-### Paso 4 — Instalar las dependencias
+Ahora instala todo lo necesario:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Esto descarga e instala todas las librerías necesarias. Puede tardar 2–4 minutos.
+Esto puede tardar 2-3 minutos la primera vez. Es normal.
 
----
+### Paso 4 — Encender el backend
 
-### Paso 5 — Iniciar el servidor
+En la misma terminal (con `(venv)` visible al inicio), escribe:
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-Cuando el servidor esté listo verás esto en la terminal:
+Si todo salió bien, vas a ver algo como esto:
 
 ```
-✅ Modelo Random Forest cargado correctamente
-   Accuracy: 0.9461
+INFO:main:Base de datos inicializada
 INFO: Uvicorn running on http://127.0.0.1:8000
 ```
 
-> ⚠️ Mantén esta terminal abierta mientras usas la extensión. Si la cierras, el servidor se apaga y el popup mostrará "Backend offline".
+**Con esto ya se creó sola** una base de datos local (un archivo llamado `safeurl_local.db` dentro de la carpeta `backend/`) — no tuviste que instalar ni configurar nada.
 
-Verifica que funciona abriendo en el navegador:
+⚠️ **Deja esta terminal abierta** mientras uses la extensión. Es el "servidor" que analiza las URLs — si la cierras, la extensión deja de funcionar hasta que la vuelvas a encender con el mismo comando.
 
-```
-http://localhost:8000
-```
+### Paso 5 — Cargar la extensión en Chrome
 
-Debe mostrar:
+1. Abre una pestaña nueva en Chrome y ve a:
+   ```
+   chrome://extensions/
+   ```
+2. Activa el interruptor **"Modo de desarrollador"** (arriba a la derecha).
+3. Haz clic en **"Cargar descomprimida"**.
+4. Selecciona la carpeta **`extension`** dentro del proyecto (no la carpeta completa del proyecto, solo esa subcarpeta).
 
-```json
-{"message": "SafeURL Guard API v2.0 funcionando correctamente"}
-```
+Deberías ver el ícono de SafeURL Guard 🛡️ aparecer en tu barra de extensiones (puede que tengas que hacer clic en el ícono del rompecabezas 🧩 para verlo).
 
----
+### Paso 6 — ¡Probarlo!
 
-### Paso 6 — Conectar la extensión a tu servidor local
-
-Abre estos dos archivos con cualquier editor de texto (como VS Code o el Bloc de notas):
-
-- `extension/background.js`
-- `extension/popup.js`
-
-En ambos archivos, busca esta línea al inicio y cámbiala:
-
-```javascript
-// Antes (servidor en la nube):
-const API_BASE = "https://safeurl-guard.onrender.com";
-
-// Después (tu servidor local):
-const API_BASE = "http://127.0.0.1:8000";
-```
-
-Guarda ambos archivos.
+- Navega a cualquier página web — se analiza automáticamente en segundo plano.
+- Haz clic en el ícono de la extensión para ver el resultado del análisis de la página actual.
+- Para ver el panel de administración, abre en el navegador:
+  ```
+  http://127.0.0.1:8000/admin
+  ```
+  La contraseña por defecto es: `SafeURL@Admin2024!`
 
 ---
 
-### Paso 7 — Cargar la extensión en Chrome
+## 🔧 Solución de problemas comunes
 
-1. Abre Chrome y ve a `chrome://extensions/`
-2. Activa el **Modo desarrollador** (esquina superior derecha)
-3. Clic en **"Cargar descomprimida"**
-4. Selecciona la carpeta `extension/` del proyecto
-5. ✅ La extensión aparece en la barra del navegador
+**Al escribir `python` la terminal dice que no lo reconoce**
+En Windows, probablemente no marcaste la casilla "Add Python to PATH" al instalar. Vuelve a correr el instalador de Python, elige "Modify", y activa esa opción.
 
----
+**"No se conecta al servidor" / la extensión no analiza nada**
+Revisa que la terminal donde corre `uvicorn` (Paso 4) siga abierta y sin errores. Si la cerraste, ve a esa carpeta de nuevo, activa el `venv` y vuelve a correr el comando.
 
-### Paso 8 — Verificar que todo funciona
+**El panel de administración dice "Unauthorized" o me saca la sesión**
+Simplemente vuelve a iniciar sesión con la contraseña de administrador — es normal después de un rato sin usarlo.
 
-- Navega a cualquier página — el popup mostrará el nivel de riesgo automáticamente
-- El indicador debe mostrar **"Backend online · ML activo"** en verde
-- Prueba el tab **"🔍 Manual"** para analizar una URL sin visitarla
+**Cambié algo en la carpeta `extension/` pero no se ve el cambio**
+Ve a `chrome://extensions/` y haz clic en el botón de recargar 🔄 sobre la tarjeta de SafeURL Guard. Chrome no detecta cambios de archivos automáticamente.
 
----
-
-## 🤖 Modelo de Machine Learning
-
-El modelo fue entrenado con **182,520 URLs** usando Random Forest con 200 árboles.
-
-| Categoría | Descripción | Acción |
-|---|---|---|
-| ✅ Segura | Sitio legítimo y confiable | Permitido |
-| ⚠️ Sospechosa | Características inusuales | Advertencia |
-| 🎣 Phishing | Roba credenciales y datos | Bloqueado |
-| ☠️ Malware | Distribuye software malicioso | Bloqueado |
-| 💀 Defacement | Sitio hackeado o comprometido | Bloqueado |
-
-**Precisión del modelo: 94.61%**
+**Quiero borrar todo y empezar de cero**
+Cierra la terminal del backend, borra el archivo `backend/safeurl_local.db`, y vuelve a correr `uvicorn main:app --reload --port 8000` — se crea una base de datos nueva y vacía.
 
 ---
 
-## ❓ Preguntas frecuentes
-
-**¿El popup dice "Backend offline", qué hago?**
-Si usas la instalación rápida, espera 60 segundos — el servidor se activa automáticamente la primera vez. Si usas el servidor local, verifica que la terminal con `uvicorn` sigue abierta.
-
-**¿Me bloquea un sitio que no es peligroso, qué hago?**
-El modelo tiene un 94.61% de precisión, por lo que ocasionalmente puede haber falsos positivos. En la pantalla de bloqueo puedes hacer clic en "Continuar bajo riesgo" para acceder de todas formas.
-
-**¿Funciona en Edge o Brave?**
-Sí. En Edge ve a `edge://extensions/` y en Brave ve a `brave://extensions/`. El resto de los pasos es idéntico.
-
-**¿Funciona en Firefox o Safari?**
-No. Esta extensión es compatible solo con navegadores basados en Chromium (Chrome, Edge, Brave, Opera).
-
-**¿Necesito internet para que funcione?**
-Sí, la extensión necesita conectarse al servidor para analizar las URLs. Sin conexión mostrará "Backend offline".
-
----
-
-## 📁 Estructura del proyecto
+## 📁 Estructura del proyecto (para referencia)
 
 ```
 safeurl-guard/
-├── backend/
-│   ├── main.py                  # Servidor FastAPI principal
-│   ├── requirements.txt         # Dependencias Python
-│   ├── Procfile                 # Configuración para Render
-│   ├── merge_and_retrain.py     # Reentrenar con nuevos datos
-│   ├── model/
-│   │   ├── rf_model.joblib      # Modelo entrenado (Random Forest)
-│   │   └── model_metadata.json  # Información del modelo
-│   ├── database/
-│   │   └── db.py                # Base de datos SQLite
-│   └── services/
-│       ├── analyzer.py          # Lógica de análisis con ML
-│       └── feature_extractor.py # Extrae características de URLs
-│
-└── extension/
-    ├── manifest.json            # Configuración de la extensión
-    ├── background.js            # Análisis automático en segundo plano
-    ├── popup.html / popup.js    # Interfaz del popup
-    ├── blocked.html / blocked.js # Página de bloqueo
-    ├── settings.html / settings.js # Página de configuración
-    └── icons/                   # Iconos de la extensión
+├── backend/                     # El "cerebro": analiza las URLs y guarda datos
+│   ├── main.py                  # Punto de entrada de la API
+│   ├── database/db.py           # Conexión y consultas a la base de datos
+│   ├── model/                   # Modelo de Machine Learning ya entrenado
+│   ├── services/analyzer.py     # Lógica que clasifica si una URL es peligrosa
+│   ├── requirements.txt         # Lista de librerías de Python necesarias
+│   └── admin_panel.html         # Panel de administración
+└── extension/                   # Lo que se instala en el navegador
+    ├── background.js            # Analiza cada página que visitas
+    ├── popup.html / popup.js    # Ventana que aparece al hacer clic en el ícono
+    ├── blocked.html / blocked.js # Pantalla de advertencia para sitios peligrosos
+    ├── settings.html / settings.js
+    └── manifest.json            # Configuración de la extensión
 ```
-
----
-
-## 🔧 API — Endpoints disponibles
-
-| Método | Endpoint | Descripción |
-|---|---|---|
-| GET | `/` | Estado general de la API |
-| GET | `/health` | Estado del servidor y modelo |
-| POST | `/analizar-url` | Analiza una URL |
-| GET | `/historial` | Obtiene el historial de análisis |
-| DELETE | `/historial` | Elimina todo el historial |
-| GET | `/estadisticas` | Estadísticas globales |
-
-Documentación interactiva disponible en: `http://localhost:8000/docs`
