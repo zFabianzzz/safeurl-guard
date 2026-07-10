@@ -43,6 +43,32 @@ async function getDeviceId() {
   return newId;
 }
 
+// Avisar a Chrome qué URL abrir automáticamente SI el usuario desinstala
+// la extensión — esta señal sí es 100% confirmada, a diferencia del heartbeat.
+getDeviceId().then(function (deviceId) {
+  chrome.runtime.setUninstallURL(
+    API_BASE + "/dispositivo/desinstalado?device_id=" + encodeURIComponent(deviceId)
+  );
+});
+
+// Heartbeat: cada minuto le avisa al backend que la extensión sigue activa,
+// para que "última conexión" en el panel admin refleje el estado real.
+chrome.alarms.create("heartbeat", { periodInMinutes: 1 });
+
+chrome.alarms.onAlarm.addListener(async function (alarm) {
+  if (alarm.name === "heartbeat") {
+    try {
+      var deviceId = await getDeviceId();
+      await fetch(API_BASE + "/dispositivo/ping", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_id: deviceId }),
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch (e) {}
+  }
+});
+
 // Actualizar blacklist desde el servidor
 async function actualizarBlacklist(deviceId) {
   if (Date.now() - blacklistLastUpdate < BLACKLIST_TTL) return;

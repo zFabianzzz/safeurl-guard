@@ -251,8 +251,8 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
           <div class="table-card">
             <div class="table-header"><span class="table-title">Dispositivos registrados</span></div>
             <table>
-              <thead><tr><th>Device ID</th><th>Primera conexión</th><th>Última conexión</th><th>Total URLs</th><th>Acciones</th></tr></thead>
-              <tbody id="devices-tbody"><tr><td colspan="5" class="empty">Cargando...</td></tr></tbody>
+              <thead><tr><th>Device ID</th><th>Nombre</th><th>Primera conexión</th><th>Última conexión</th><th>Total URLs</th><th>Acciones</th></tr></thead>
+              <tbody id="devices-tbody"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -438,6 +438,28 @@ function badgeClass(c) {
   return 'warn';
 }
 
+function formatFecha(fechaStr) {
+  if (!fechaStr) return '–';
+  try {
+    const iso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T');
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return fechaStr;
+    return d.toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch (e) { return fechaStr; }
+}
+
+function estadoConexion(ultimaVezStr, activo) {
+  if (activo === false || activo === 0) {
+    return '<span style="color:var(--red)">❌ Desinstalado</span>';
+  }
+  if (!ultimaVezStr) return '<span style="color:var(--text3)">⚪ Sin datos</span>';
+  const iso = ultimaVezStr.includes('T') ? ultimaVezStr : ultimaVezStr.replace(' ', 'T');
+  const ultima = new Date(iso);
+  const minutos = (Date.now() - ultima.getTime()) / 60000;
+  if (minutos <= 2) return '<span style="color:var(--green)">🟢 En línea</span>';
+  return '<span style="color:var(--text3)">⚪ Desconectado</span>';
+}
+
 function renderHistorialTable(tbodyId, items) {
   const tbody = document.getElementById(tbodyId);
   if (!items.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin registros</td></tr>'; return; }
@@ -449,18 +471,19 @@ function renderHistorialTable(tbodyId, items) {
       <td><span class="badge ${badgeClass(i.clasificacion)}">${i.clasificacion}</span></td>
       <td><span class="risk-pill ${riskClass(i.riesgo)}">${i.riesgo}%</span></td>
       <td style="color:${i.accion==='Bloqueado'?'var(--red)':i.accion==='Advertencia'?'var(--yellow)':'var(--green)'}">${i.accion}</td>
-      <td style="font-size:11px;color:var(--text3)">${i.fecha||'–'}</td>
+      <td style="font-size:11px;color:var(--text3)">${formatFecha(i.fecha)}</td>
     </tr>`;
   }).join('');
 }
 
 function renderDispositivos(items) {
   const tbody = document.getElementById('devices-tbody');
-  if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin dispositivos registrados aún</td></tr>'; return; }
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin dispositivos registrados aún</td></tr>'; return; }
   tbody.innerHTML = items.map(d => `<tr>
     <td><span class="device-id">${d.device_id}</span></td>
-    <td style="font-size:11px;color:var(--text3)">${d.primera_vez||'–'}</td>
-    <td style="font-size:11px;color:var(--text3)">${d.ultima_vez||'–'}</td>
+    <td style="color:var(--text)">${d.nombre ? d.nombre : '<span style="color:var(--text3)">— sin nombre —</span>'}</td>
+    <td style="font-size:11px;color:var(--text3)">${formatFecha(d.primera_vez)}</td>
+    <td style="font-size:11px">${estadoConexion(d.ultima_vez, d.activo)}<br><span style="color:var(--text3)">${formatFecha(d.ultima_vez)}</span></td>
     <td style="font-weight:700;color:var(--accent)">${d.total_urls||0}</td>
     <td>
       <button class="btn btn-danger btn-sm" onclick="clearDeviceHistory('${d.device_id}')">🗑️ Limpiar</button>
@@ -475,7 +498,7 @@ function renderBlacklist(items) {
     <td>${i.device_id==='*'?'<span class="badge info">🌐 Todos</span>':'<span class="device-id">'+i.device_id.substring(0,14)+'...</span>'}</td>
     <td style="font-family:monospace;color:var(--red)">${i.patron}</td>
     <td><span class="badge warn">${i.tipo}</span></td>
-    <td style="font-size:11px;color:var(--text3)">${i.creado||'–'}</td>
+    <td style="font-size:11px;color:var(--text3)">${formatFecha(i.creado)}</td>
     <td><button class="btn btn-danger btn-sm" onclick="removeBlacklist(${i.id})">❌ Eliminar</button></td>
   </tr>`).join('');
 }
@@ -487,8 +510,9 @@ function populateDeviceSelects(devices) {
   selHist.innerHTML = '<option value="">Todos los dispositivos</option>';
   selBl.innerHTML = '<option value="*">🌐 Todos los dispositivos</option>';
   devices.forEach(d => {
-    selHist.innerHTML += `<option value="${d.device_id}">${d.device_id.substring(0,20)}...</option>`;
-    selBl.innerHTML += `<option value="${d.device_id}">${d.device_id.substring(0,20)}...</option>`;
+    const etiqueta = d.nombre ? d.nombre + ' (' + d.device_id.substring(0,10) + '...)' : d.device_id.substring(0,20)+'...';
+    selHist.innerHTML += `<option value="${d.device_id}">${etiqueta}</option>`;
+    selBl.innerHTML += `<option value="${d.device_id}">${etiqueta}</option>`;
   });
   if (prev) selHist.value = prev;
 }

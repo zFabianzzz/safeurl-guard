@@ -82,6 +82,7 @@ def init_db():
             cur.execute("ALTER TABLE historial ADD COLUMN IF NOT EXISTS device_id TEXT NOT NULL DEFAULT 'unknown'")
             cur.execute("ALTER TABLE dispositivos ADD COLUMN IF NOT EXISTS total_urls INTEGER DEFAULT 0")
             cur.execute("ALTER TABLE dispositivos ADD COLUMN IF NOT EXISTS nombre TEXT")
+            cur.execute("ALTER TABLE dispositivos ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT TRUE")
         else:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS historial (
@@ -141,6 +142,8 @@ def _migrar_columnas_sqlite(cur):
         cur.execute("ALTER TABLE dispositivos ADD COLUMN total_urls INTEGER DEFAULT 0")
     if "nombre" not in columnas_dispositivos:
         cur.execute("ALTER TABLE dispositivos ADD COLUMN nombre TEXT")
+    if "activo" not in columnas_dispositivos:
+        cur.execute("ALTER TABLE dispositivos ADD COLUMN activo INTEGER DEFAULT 1")
 
 
 def _crear_admin_por_defecto():
@@ -221,11 +224,43 @@ def registrar_dispositivo(device_id: str):
         existing = cur.fetchone()
         if existing:
             if USE_POSTGRES:
-                cur.execute(f"UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP WHERE device_id = {ph}", (device_id,))
+                cur.execute(f"UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP, activo = TRUE WHERE device_id = {ph}", (device_id,))
             else:
-                cur.execute(f"UPDATE dispositivos SET ultima_vez = datetime('now','localtime') WHERE device_id = {ph}", (device_id,))
+                cur.execute(f"UPDATE dispositivos SET ultima_vez = datetime('now','localtime'), activo = 1 WHERE device_id = {ph}", (device_id,))
         else:
             cur.execute(f"INSERT INTO dispositivos (device_id) VALUES ({ph})", (device_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def actualizar_nombre_dispositivo(device_id: str, nombre: str):
+    """Guarda (o actualiza) el nombre que el usuario le puso a su dispositivo."""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        ph = "%s" if USE_POSTGRES else "?"
+        cur.execute(f"SELECT device_id FROM dispositivos WHERE device_id = {ph}", (device_id,))
+        existing = cur.fetchone()
+        if existing:
+            cur.execute(f"UPDATE dispositivos SET nombre = {ph} WHERE device_id = {ph}", (nombre, device_id))
+        else:
+            cur.execute(f"INSERT INTO dispositivos (device_id, nombre) VALUES ({ph}, {ph})", (device_id, nombre))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def marcar_desinstalado(device_id: str):
+    """Marca un dispositivo como desinstalado (señal confirmada por Chrome)."""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        ph = "%s" if USE_POSTGRES else "?"
+        if USE_POSTGRES:
+            cur.execute(f"UPDATE dispositivos SET activo = FALSE WHERE device_id = {ph}", (device_id,))
+        else:
+            cur.execute(f"UPDATE dispositivos SET activo = 0 WHERE device_id = {ph}", (device_id,))
         conn.commit()
     finally:
         conn.close()
@@ -241,10 +276,11 @@ def obtener_dispositivos():
                 d.nombre AS nombre,
                 d.primera_vez AS primera_vez,
                 d.ultima_vez AS ultima_vez,
+                d.activo AS activo,
                 COUNT(h.id) AS total_urls
             FROM dispositivos d
             LEFT JOIN historial h ON d.device_id = h.device_id
-            GROUP BY d.device_id, d.nombre, d.primera_vez, d.ultima_vez
+            GROUP BY d.device_id, d.nombre, d.primera_vez, d.ultima_vez, d.activo
             ORDER BY d.ultima_vez DESC
         """)
         rows = cur.fetchall()
@@ -274,12 +310,12 @@ def guardar_analisis(data: dict, device_id: str = "unknown"):
         ))
         if USE_POSTGRES:
             cur.execute(f"""
-                UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP, total_urls = total_urls + 1
+                UPDATE dispositivos SET ultima_vez = CURRENT_TIMESTAMP, total_urls = total_urls + 1, activo = TRUE
                 WHERE device_id = {ph}
             """, (device_id,))
         else:
             cur.execute(f"""
-                UPDATE dispositivos SET ultima_vez = datetime('now','localtime'), total_urls = total_urls + 1
+                UPDATE dispositivos SET ultima_vez = datetime('now','localtime'), total_urls = total_urls + 1, activo = 1
                 WHERE device_id = {ph}
             """, (device_id,))
         conn.commit()

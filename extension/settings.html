@@ -43,6 +43,13 @@
     .device-label{font-size:11px;color:#7a9bb5}
     .device-id{font-family:monospace;font-size:12px;color:#60a5fa;font-weight:700;word-break:break-all}
 
+    /* Nombre del dispositivo */
+    .name-box{margin:0 18px 14px 18px}
+    .name-label{font-size:11px;color:#7a9bb5;display:block;margin-bottom:6px}
+    .name-input{width:100%;padding:10px 14px;background:#0e2036;border:1px solid #14345c;border-radius:8px;color:#e2e8f0;font-size:13px;font-family:inherit;outline:none}
+    .name-input:focus{border-color:#2563eb}
+    .name-hint{font-size:10px;color:#7a9bb5;margin-top:6px}
+
     .save-btn{width:100%;padding:12px;background:#2563eb;border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s;margin-top:8px;font-family:inherit}
     .save-btn:hover{background:#1d4ed8}
     .success-msg{text-align:center;font-size:12px;color:#22c55e;padding:10px;display:none;margin-top:8px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px}
@@ -96,6 +103,11 @@
     <div class="device-box">
       <span class="device-label"> ID de este dispositivo:</span>
       <span class="device-id" id="device-id-display">Cargando...</span>
+    </div>
+    <div class="name-box">
+      <label class="name-label" for="device-name-input">Nombre para identificarte (opcional)</label>
+      <input type="text" id="device-name-input" class="name-input" placeholder="Ej: Laptop de Fabián" maxlength="50">
+      <p class="name-hint">Este nombre aparecerá en el panel de administrador junto a tu ID, para identificarte más fácil.</p>
     </div>
   </div>
 
