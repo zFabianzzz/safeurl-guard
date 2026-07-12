@@ -7,7 +7,7 @@ from fastapi import FastAPI, Query, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 from services.analyzer import get_analyzer
 from database.db import (
@@ -15,7 +15,7 @@ from database.db import (
     limpiar_historial, registrar_dispositivo, obtener_dispositivos,
     agregar_blacklist, eliminar_blacklist, obtener_blacklist, verificar_blacklist,
     verificar_admin, crear_sesion, verificar_sesion, cerrar_sesion,
-    actualizar_nombre_dispositivo, marcar_desinstalado
+    actualizar_nombre_dispositivo, marcar_desinstalado, eliminar_dispositivos
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -57,6 +57,10 @@ class NombreDispositivoRequest(BaseModel):
 
 class PingRequest(BaseModel):
     device_id: str
+
+
+class EliminarDispositivosRequest(BaseModel):
+    device_ids: List[str]
 
 
 # ── Startup ───────────────────────────────────────────────────────────────────
@@ -191,6 +195,15 @@ async def admin_logout(token: str = None, authorization: str = Header(None)):
 async def admin_dispositivos(authorization: str = Header(None)):
     verificar_token_admin(authorization)
     return obtener_dispositivos()
+
+
+@app.post("/admin/dispositivos/eliminar")
+async def admin_eliminar_dispositivos(data: EliminarDispositivosRequest, authorization: str = Header(None)):
+    verificar_token_admin(authorization)
+    if not data.device_ids:
+        raise HTTPException(status_code=400, detail="No se especificaron dispositivos")
+    eliminar_dispositivos(data.device_ids)
+    return {"message": f"{len(data.device_ids)} dispositivo(s) eliminado(s), junto con su historial"}
 
 
 @app.get("/admin/historial")

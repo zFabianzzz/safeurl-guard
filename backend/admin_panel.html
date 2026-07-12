@@ -206,14 +206,14 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
       </div>
       <nav class="sidebar-nav">
         <div class="nav-section">Principal</div>
-        <button class="nav-item active" data-page="dashboard"> Dashboard</button>
-        <button class="nav-item" data-page="dispositivos"> Dispositivos</button>
-        <button class="nav-item" data-page="historial"> Historial</button>
+        <button class="nav-item active" data-page="dashboard">📊 Dashboard</button>
+        <button class="nav-item" data-page="dispositivos">💻 Dispositivos</button>
+        <button class="nav-item" data-page="historial">📋 Historial</button>
         <div class="nav-section" style="margin-top:8px">Control</div>
-        <button class="nav-item" data-page="blacklist"> Blacklist</button>
+        <button class="nav-item" data-page="blacklist">🚫 Blacklist</button>
       </nav>
       <div class="sidebar-footer">
-        <button class="logout-btn" id="btn-logout"> Cerrar sesión</button>
+        <button class="logout-btn" id="btn-logout">🔓 Cerrar sesión</button>
       </div>
     </aside>
 
@@ -224,7 +224,7 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
           <div class="topbar-title" id="page-title">Dashboard</div>
           <div class="topbar-sub" id="page-sub">Vista general del sistema</div>
         </div>
-        <button class="refresh-btn" id="btn-refresh"> Actualizar</button>
+        <button class="refresh-btn" id="btn-refresh">🔄 Actualizar</button>
       </div>
 
       <div class="content">
@@ -249,10 +249,19 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
         <!-- DISPOSITIVOS -->
         <div class="page" id="page-dispositivos">
           <div class="table-card">
-            <div class="table-header"><span class="table-title">Dispositivos registrados</span></div>
+            <div class="table-header">
+              <span class="table-title">Dispositivos registrados</span>
+              <div class="device-filter">
+                <span id="dev-selected-count" style="font-size:11px;color:var(--text3)"></span>
+                <button class="btn btn-danger btn-sm" id="btn-delete-devices" style="display:none" onclick="eliminarDispositivosSeleccionados()">🗑️ Eliminar seleccionados</button>
+              </div>
+            </div>
             <table>
-              <thead><tr><th>Device ID</th><th>Nombre</th><th>Primera conexión</th><th>Última conexión</th><th>Total URLs</th><th>Acciones</th></tr></thead>
-              <tbody id="devices-tbody"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
+              <thead><tr>
+                <th style="width:30px"><input type="checkbox" id="dev-select-all" onclick="toggleSelectAllDevices(this)"></th>
+                <th>Device ID</th><th>Nombre</th><th>Primera conexión</th><th>Última conexión</th><th>Total URLs</th><th>Acciones</th>
+              </tr></thead>
+              <tbody id="devices-tbody"><tr><td colspan="7" class="empty">Cargando...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -264,7 +273,7 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
               <span class="table-title">Historial por dispositivo</span>
               <div class="device-filter">
                 <select id="hist-device-filter"><option value="">Todos los dispositivos</option></select>
-                <button class="btn btn-danger btn-sm" id="btn-clear-hist"> Limpiar selección</button>
+                <button class="btn btn-danger btn-sm" id="btn-clear-hist">🗑️ Limpiar selección</button>
               </div>
             </div>
             <table>
@@ -283,10 +292,10 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
             <!-- Formulario agregar -->
             <div class="bl-form">
               <select id="bl-device-select">
-                <option value="*"> Todos los dispositivos</option>
+                <option value="*">🌐 Todos los dispositivos</option>
               </select>
               <input type="text" id="bl-patron" placeholder="Palabra o URL a bloquear (ej: casino, phishing.tk)">
-              <button class="btn btn-primary" id="btn-add-bl"> Agregar bloqueo</button>
+              <button class="btn btn-primary" id="btn-add-bl">➕ Agregar bloqueo</button>
             </div>
             <table>
               <thead><tr><th>Dispositivo</th><th>Patrón bloqueado</th><th>Tipo</th><th>Fecha</th><th>Acción</th></tr></thead>
@@ -294,7 +303,7 @@ tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
             </table>
           </div>
           <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px">
-            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px"> Cómo funciona la blacklist</div>
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">ℹ️ Cómo funciona la blacklist</div>
             <div style="font-size:11px;color:var(--text2);line-height:1.6">
               • <strong>Todos los dispositivos (★)</strong> — el bloqueo aplica a TODOS los usuarios de la extensión<br>
               • <strong>Device ID específico</strong> — solo ese dispositivo es bloqueado<br>
@@ -491,8 +500,9 @@ function renderHistorialTable(tbodyId, items) {
 
 function renderDispositivos(items) {
   const tbody = document.getElementById('devices-tbody');
-  if (!items.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin dispositivos registrados aún</td></tr>'; return; }
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin dispositivos registrados aún</td></tr>'; updateDeviceSelectionUI(); return; }
   tbody.innerHTML = items.map(d => `<tr>
+    <td><input type="checkbox" class="dev-checkbox" value="${d.device_id}" onclick="updateDeviceSelectionUI()"></td>
     <td><span class="device-id">${d.device_id}</span></td>
     <td style="color:var(--text)">${d.nombre ? d.nombre : '<span style="color:var(--text3)">— sin nombre —</span>'}</td>
     <td style="font-size:11px;color:var(--text3)">${formatFecha(d.primera_vez)}</td>
@@ -502,6 +512,42 @@ function renderDispositivos(items) {
       <button class="btn btn-danger btn-sm" onclick="clearDeviceHistory('${d.device_id}')">🗑️ Limpiar</button>
     </td>
   </tr>`).join('');
+  updateDeviceSelectionUI();
+}
+
+function toggleSelectAllDevices(checkbox) {
+  document.querySelectorAll('.dev-checkbox').forEach(cb => { cb.checked = checkbox.checked; });
+  updateDeviceSelectionUI();
+}
+
+function updateDeviceSelectionUI() {
+  const checked = document.querySelectorAll('.dev-checkbox:checked');
+  const countEl = document.getElementById('dev-selected-count');
+  const btnEl = document.getElementById('btn-delete-devices');
+  if (checked.length > 0) {
+    countEl.textContent = checked.length + ' seleccionado(s)';
+    btnEl.style.display = 'inline-flex';
+  } else {
+    countEl.textContent = '';
+    btnEl.style.display = 'none';
+  }
+  const all = document.querySelectorAll('.dev-checkbox');
+  const selectAllEl = document.getElementById('dev-select-all');
+  if (selectAllEl) selectAllEl.checked = all.length > 0 && checked.length === all.length;
+}
+
+async function eliminarDispositivosSeleccionados() {
+  const ids = Array.from(document.querySelectorAll('.dev-checkbox:checked')).map(cb => cb.value);
+  if (!ids.length) return;
+  const confirmMsg = ids.length === 1
+    ? `¿Eliminar el dispositivo ${ids[0]}?\n\nEsto borra también TODO su historial de URLs. Esta acción no se puede deshacer.`
+    : `¿Eliminar estos ${ids.length} dispositivos?\n\nEsto borra también TODO su historial de URLs. Esta acción no se puede deshacer.`;
+  if (!confirm(confirmMsg)) return;
+  await fetch(API + '/admin/dispositivos/eliminar', {
+    method: 'POST', headers: authHeaders(),
+    body: JSON.stringify({ device_ids: ids })
+  });
+  loadAll();
 }
 
 function renderBlacklist(items) {

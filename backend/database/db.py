@@ -266,6 +266,24 @@ def marcar_desinstalado(device_id: str):
         conn.close()
 
 
+def eliminar_dispositivos(device_ids: list):
+    """Elimina uno o varios dispositivos por completo: su registro, su historial
+    de URLs analizadas, y las reglas de blacklist específicas de ese dispositivo."""
+    if not device_ids:
+        return
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        ph = "%s" if USE_POSTGRES else "?"
+        for device_id in device_ids:
+            cur.execute(f"DELETE FROM historial WHERE device_id = {ph}", (device_id,))
+            cur.execute(f"DELETE FROM blacklist WHERE device_id = {ph}", (device_id,))
+            cur.execute(f"DELETE FROM dispositivos WHERE device_id = {ph}", (device_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def obtener_dispositivos():
     conn = get_connection()
     try:
