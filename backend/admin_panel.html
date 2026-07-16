@@ -3,628 +3,801 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SafeURL Guard — Panel Administrador</title>
+<meta name="theme-color" content="#020817">
+<title>SafeURL Guard | Panel de Administrador</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#030b14;--bg2:#060f1c;--card:#0a1628;--card2:#0d1f35;
-  --border:#112240;--border2:#1a3560;
-  --text:#cdd9e8;--text2:#7a9bb5;--text3:#3d5a78;
-  --accent:#3b82f6;--green:#22c55e;--yellow:#f59e0b;
-  --red:#ef4444;--orange:#f97316;--purple:#a855f7;
+  --bg:#020817;
+  --bg-soft:#050d1d;
+  --sidebar:#030b19;
+  --surface:#071426;
+  --surface-2:#0a1a30;
+  --surface-3:#0d213c;
+  --border:#153052;
+  --border-soft:rgba(73,128,190,.18);
+  --text:#f4f8ff;
+  --muted:#8ca3bd;
+  --muted-2:#56708d;
+  --blue:#3b82f6;
+  --cyan:#22d3ee;
+  --green:#22c55e;
+  --yellow:#f59e0b;
+  --red:#ef4444;
+  --purple:#a855f7;
+  --shadow:0 22px 60px rgba(0,0,0,.28);
+  --sidebar-w:252px;
 }
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 78% -10%,rgba(37,99,235,.16),transparent 34%),
+    radial-gradient(circle at 25% 105%,rgba(14,165,233,.08),transparent 28%),
+    var(--bg);
+  font-size:13px;
+  overflow-x:hidden;
+}
+button,input,select{font:inherit}
+button{color:inherit}
+::selection{background:rgba(59,130,246,.35)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#030a16}
+::-webkit-scrollbar-thumb{background:#173453;border:2px solid #030a16;border-radius:999px}
+
+/* ICONS */
+.icon{width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.icon svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand-shield{width:42px;height:48px;filter:drop-shadow(0 0 15px rgba(59,130,246,.45))}
+.brand-shield svg{width:100%;height:100%}
 
 /* LOGIN */
 #login-screen{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  background:var(--bg);
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:minmax(360px,1fr) minmax(460px,.92fr);
+  align-items:stretch;
+  position:relative;
+  overflow:hidden;
+}
+#login-screen::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(59,130,246,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.06) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to right,#000,transparent 65%);
+}
+.login-hero{
+  position:relative;z-index:1;padding:72px clamp(42px,7vw,110px);
+  display:flex;flex-direction:column;justify-content:center;
+  background:radial-gradient(circle at 42% 62%,rgba(30,96,224,.22),transparent 32%);
+}
+.login-brand{display:flex;align-items:center;gap:16px;margin-bottom:46px}
+.login-brand h1{font-size:30px;letter-spacing:-.8px}
+.login-brand p{color:#6fa7ed;margin-top:6px;font-size:15px}
+.hero-heading{font-size:clamp(34px,4vw,58px);line-height:1.08;max-width:680px;letter-spacing:-2px;margin-bottom:18px}
+.hero-heading span{color:#60a5fa}
+.hero-copy{font-size:16px;line-height:1.75;color:var(--muted);max-width:620px}
+.login-panel{
+  position:relative;z-index:2;display:grid;place-items:center;padding:36px;
+  background:linear-gradient(180deg,rgba(3,11,25,.75),rgba(2,8,23,.94));
+  border-left:1px solid var(--border-soft);
 }
 .login-card{
-  background:var(--card);border:1px solid var(--border2);border-radius:16px;
-  padding:40px;width:380px;text-align:center;
+  width:min(100%,520px);padding:44px;
+  background:linear-gradient(145deg,rgba(10,27,50,.96),rgba(5,15,31,.96));
+  border:1px solid rgba(78,133,196,.36);border-radius:24px;box-shadow:var(--shadow),0 0 80px rgba(37,99,235,.1);
+  position:relative;overflow:hidden;
 }
-.login-logo{font-size:48px;margin-bottom:16px}
-.login-card h1{font-size:20px;font-weight:700;margin-bottom:6px}
-.login-card p{font-size:12px;color:var(--text2);margin-bottom:28px}
-.login-card input{
-  width:100%;padding:12px 16px;background:var(--bg2);border:1px solid var(--border2);
-  border-radius:10px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px;
-  font-family:inherit;
+.login-card::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#60a5fa,transparent)}
+.login-card-header{text-align:center;margin-bottom:34px}
+.login-card-header .brand-shield{margin-bottom:15px}
+.login-card h2{font-size:26px;letter-spacing:-.6px;margin-bottom:7px}
+.login-card-header p{color:var(--muted);font-size:13px}
+.form-label{display:block;font-size:12px;font-weight:600;margin-bottom:8px;color:#d9e7f8}
+.input-wrap{position:relative;margin-bottom:20px}
+.input-wrap .icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted-2)}
+.input-wrap input{
+  width:100%;height:52px;padding:0 48px 0 46px;color:var(--text);outline:none;
+  background:#061225;border:1px solid #234469;border-radius:13px;transition:.2s;
 }
-.login-card input:focus{border-color:var(--accent)}
-.login-card button{
-  width:100%;padding:12px;background:var(--accent);border:none;border-radius:10px;
-  color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+.input-wrap input:focus{border-color:#4b91f7;box-shadow:0 0 0 4px rgba(59,130,246,.12)}
+.toggle-password{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:9px}
+.toggle-password:hover{background:rgba(255,255,255,.05);color:#fff}
+.login-button{
+  width:100%;height:52px;border:none;border-radius:13px;cursor:pointer;color:#fff;font-weight:700;
+  background:linear-gradient(135deg,#2563eb,#3b82f6 55%,#0ea5e9);box-shadow:0 10px 28px rgba(37,99,235,.28);transition:.2s;
 }
-.login-card button:hover{background:#1d4ed8}
-.login-error{color:var(--red);font-size:12px;margin-top:10px;display:none}
+.login-button:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(37,99,235,.38)}
+.login-button:disabled{opacity:.65;cursor:wait;transform:none}
+.login-error{display:none;margin-top:14px;padding:11px 13px;border-radius:10px;color:#fda4af;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);font-size:11px;text-align:center}
+.login-security{display:flex;align-items:center;gap:11px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border-soft);color:var(--muted);font-size:11px;line-height:1.55}
+.login-security .feature-icon{width:37px;height:37px;display:grid;place-items:center;border-radius:11px;background:rgba(59,130,246,.1);color:#60a5fa}
 
-/* LAYOUT */
+/* APP LAYOUT */
 #app-screen{display:none}
-.layout{display:flex;min-height:100vh}
+.layout{min-height:100vh}
 .sidebar{
-  width:220px;background:var(--bg2);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;
+  position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);z-index:100;
+  background:linear-gradient(180deg,#050e1e,#030a16 70%);border-right:1px solid var(--border-soft);
+  display:flex;flex-direction:column;box-shadow:18px 0 60px rgba(0,0,0,.18);
 }
-.sidebar-logo{
-  padding:20px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:10px;
-}
-.logo-icon{
-  width:34px;height:34px;background:var(--accent);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;font-size:16px;
-}
-.logo-text{font-size:13px;font-weight:700;color:#fff}
-.logo-sub{font-size:10px;color:var(--text3)}
-.sidebar-nav{padding:12px 8px;flex:1}
-.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:8px 12px 4px}
+.sidebar-logo{height:84px;padding:17px 20px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--border-soft)}
+.sidebar-logo .brand-shield{width:34px;height:39px}
+.logo-text{font-size:15px;font-weight:800;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:#5b7ca1;margin-top:4px}
+.sidebar-nav{padding:20px 11px;flex:1;overflow-y:auto}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.35px;color:#496683;padding:8px 12px 7px}
 .nav-item{
-  display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;
-  cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);
-  transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;
-  font-family:inherit;
+  display:flex;align-items:center;gap:12px;width:100%;height:45px;padding:0 13px;margin-bottom:4px;
+  border:1px solid transparent;border-radius:11px;background:transparent;color:#8da5bf;cursor:pointer;text-align:left;transition:.18s;font-weight:500;
 }
-.nav-item:hover{background:var(--card);color:var(--text)}
-.nav-item.active{background:rgba(59,130,246,0.15);color:var(--accent)}
-.sidebar-footer{padding:12px;border-top:1px solid var(--border)}
-.logout-btn{
-  width:100%;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);
-  border-radius:8px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;
-  font-family:inherit;
-}
-.logout-btn:hover{background:rgba(239,68,68,0.2)}
-
-/* MAIN */
-.main{margin-left:220px;flex:1}
+.nav-item:hover{color:#dce9f8;background:rgba(30,64,110,.26)}
+.nav-item.active{color:#fff;background:linear-gradient(90deg,rgba(37,99,235,.34),rgba(30,64,175,.18));border-color:rgba(59,130,246,.45);box-shadow:inset 3px 0 #3b82f6,0 6px 22px rgba(37,99,235,.12)}
+.nav-item.active .icon{color:#60a5fa}
+.sidebar-footer{padding:13px;border-top:1px solid var(--border-soft)}
+.admin-profile{display:flex;align-items:center;gap:11px;padding:8px 6px 14px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#123667,#0b2141);border:1px solid #214976;color:#7bb2ff;font-weight:700}
+.admin-profile strong{display:block;font-size:11px}.admin-profile span{display:block;color:var(--muted-2);font-size:9px;margin-top:3px}
+.logout-btn{width:100%;height:39px;border-radius:10px;border:1px solid rgba(239,68,68,.32);background:rgba(239,68,68,.08);color:#ff6b75;cursor:pointer;font-size:11px;font-weight:600;transition:.18s}
+.logout-btn:hover{background:rgba(239,68,68,.16)}
+.main{margin-left:var(--sidebar-w);min-height:100vh}
 .topbar{
-  background:var(--bg2);border-bottom:1px solid var(--border);
-  padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:50;
+  height:84px;padding:0 clamp(20px,2.5vw,38px);display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;background:rgba(2,8,23,.84);border-bottom:1px solid var(--border-soft);backdrop-filter:blur(18px);
 }
-.topbar-title{font-size:16px;font-weight:700;color:#fff}
-.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
-.content{padding:24px 28px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.mobile-menu{display:none;width:39px;height:39px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;color:var(--muted)}
+.topbar-title{font-size:20px;font-weight:750;letter-spacing:-.45px}
+.topbar-sub{font-size:10px;color:#527292;margin-top:5px}
+.refresh-btn{height:39px;padding:0 15px;border-radius:10px;border:1px solid #23528a;background:rgba(13,38,73,.75);color:#83b8ff;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;transition:.2s}
+.refresh-btn:hover{border-color:#3b82f6;color:#fff;background:rgba(37,99,235,.18)}
+.refresh-btn.loading .icon{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.content{padding:25px clamp(18px,2.5vw,38px) 42px;max-width:1900px;margin:auto}
+.page{display:none;animation:fadeIn .22s ease}.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 
-/* PAGES */
-.page{display:none}
-.page.active{display:block}
-
-/* CARDS */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+/* COMMON CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:17px}
 .kpi-card{
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:18px 20px;position:relative;overflow:hidden;
+  min-height:132px;padding:20px;border-radius:16px;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,rgba(10,28,52,.96),rgba(6,18,36,.94));border:1px solid var(--border-soft);box-shadow:0 12px 32px rgba(0,0,0,.12);
 }
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.kpi-card.blue::before{background:var(--accent)}
-.kpi-card.green::before{background:var(--green)}
-.kpi-card.red::before{background:var(--red)}
-.kpi-card.purple::before{background:var(--purple)}
-.kpi-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.kpi-value{font-size:28px;font-weight:800;font-family:monospace}
-.kpi-card.blue .kpi-value{color:var(--accent)}
-.kpi-card.green .kpi-value{color:var(--green)}
-.kpi-card.red .kpi-value{color:var(--red)}
-.kpi-card.purple .kpi-value{color:var(--purple)}
+.kpi-card::after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;right:-58px;top:-62px;background:var(--glow);filter:blur(2px)}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:relative;z-index:1}
+.kpi-icon{width:45px;height:45px;border-radius:13px;display:grid;place-items:center;background:var(--icon-bg);border:1px solid var(--icon-border);color:var(--tone);box-shadow:0 10px 22px var(--shadow-tone)}
+.kpi-icon .icon{width:23px;height:23px}
+.kpi-meta{flex:1;padding-left:3px}
+.kpi-label{font-size:9px;color:#7390ad;font-weight:600;text-transform:uppercase;letter-spacing:.75px;margin-bottom:8px}
+.kpi-value{font-size:27px;line-height:1;font-weight:800;letter-spacing:-.7px}
+.kpi-note{font-size:9px;color:var(--muted-2);margin-top:9px}.kpi-note strong{color:var(--tone)}
+.kpi-card.blue{--tone:#60a5fa;--glow:rgba(59,130,246,.10);--icon-bg:rgba(37,99,235,.2);--icon-border:rgba(59,130,246,.35);--shadow-tone:rgba(37,99,235,.18)}
+.kpi-card.red{--tone:#fb7185;--glow:rgba(239,68,68,.11);--icon-bg:rgba(185,28,28,.22);--icon-border:rgba(239,68,68,.35);--shadow-tone:rgba(239,68,68,.16)}
+.kpi-card.green{--tone:#4ade80;--glow:rgba(34,197,94,.1);--icon-bg:rgba(22,101,52,.24);--icon-border:rgba(34,197,94,.35);--shadow-tone:rgba(34,197,94,.15)}
+.kpi-card.purple{--tone:#c084fc;--glow:rgba(168,85,247,.1);--icon-bg:rgba(107,33,168,.23);--icon-border:rgba(168,85,247,.35);--shadow-tone:rgba(168,85,247,.15)}
+.kpi-card.yellow{--tone:#fbbf24;--glow:rgba(245,158,11,.1);--icon-bg:rgba(146,64,14,.22);--icon-border:rgba(245,158,11,.35);--shadow-tone:rgba(245,158,11,.14)}
+.panel{
+  background:linear-gradient(145deg,rgba(8,23,44,.97),rgba(5,16,32,.95));
+  border:1px solid var(--border-soft);border-radius:16px;box-shadow:0 14px 36px rgba(0,0,0,.13);overflow:hidden;
+}
+.panel-header{min-height:59px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--border-soft)}
+.panel-title{font-size:13px;font-weight:700}.panel-subtitle{font-size:9px;color:var(--muted-2);margin-top:4px}
+.dashboard-charts{display:grid;grid-template-columns:1fr .92fr 1.35fr;gap:15px;margin-bottom:17px}
+.chart-panel{padding:0 0 12px;min-height:320px}
+.chart-body{padding:20px 18px 10px;height:255px;position:relative}
+.chart-empty{height:100%;display:grid;place-items:center;color:var(--muted-2);font-size:11px}
 
-/* TABLE CARD */
-.table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.table-header{
-  padding:14px 20px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.table-title{font-size:13px;font-weight:700;color:#fff}
-table{width:100%;border-collapse:collapse}
-thead th{
-  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
-  color:var(--text3);padding:10px 20px;text-align:left;border-bottom:1px solid var(--border);
-}
-tbody tr{border-bottom:1px solid rgba(17,34,64,0.6);transition:background 0.1s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:rgba(255,255,255,0.02)}
-tbody td{padding:10px 20px;font-size:12px;color:var(--text2)}
-.td-mono{font-family:monospace;font-size:11px;color:var(--text)}
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px}
-.badge.safe{background:rgba(34,197,94,0.12);color:var(--green)}
-.badge.warn{background:rgba(245,158,11,0.12);color:var(--yellow)}
-.badge.danger{background:rgba(239,68,68,0.12);color:var(--red)}
-.badge.admin{background:rgba(168,85,247,0.12);color:var(--purple)}
-.badge.info{background:rgba(59,130,246,0.12);color:var(--accent)}
-.risk-pill{font-family:monospace;font-size:11px;font-weight:700}
-.risk-pill.low{color:var(--green)}
-.risk-pill.mid{color:var(--yellow)}
-.risk-pill.high{color:var(--red)}
-.device-id{font-family:monospace;font-size:11px;background:rgba(59,130,246,0.08);color:var(--accent);padding:2px 8px;border-radius:4px}
+/* BAR CHART */
+.bar-chart{height:100%;display:flex;align-items:flex-end;gap:14px;padding:16px 8px 31px 35px;position:relative}
+.bar-chart::before{content:"";position:absolute;left:34px;right:8px;top:15px;bottom:31px;background:repeating-linear-gradient(to bottom,rgba(116,154,197,.11) 0,rgba(116,154,197,.11) 1px,transparent 1px,transparent 25%)}
+.bar-item{height:100%;flex:1;display:flex;align-items:flex-end;justify-content:center;position:relative;z-index:1;min-width:40px}
+.bar-fill{width:min(62px,78%);height:var(--h);min-height:3px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--c1),var(--c2));box-shadow:0 0 24px var(--shadow-c);position:relative;transition:height .5s ease}
+.bar-value{position:absolute;top:-23px;left:50%;transform:translateX(-50%);font-weight:700;font-size:11px;color:#e8f2ff}
+.bar-label{position:absolute;top:calc(100% + 9px);left:50%;transform:translateX(-50%);width:92px;text-align:center;color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* BUTTONS */
-.btn{
-  padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
-  border:none;font-family:inherit;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;
-}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#1d4ed8}
-.btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.25)}
-.btn-danger:hover{background:rgba(239,68,68,0.2)}
-.btn-sm{padding:4px 10px;font-size:11px}
+/* DONUT */
+.donut-layout{height:100%;display:flex;align-items:center;justify-content:center;gap:24px}
+.donut{width:166px;aspect-ratio:1;border-radius:50%;position:relative;background:conic-gradient(var(--green) 0 var(--p1),var(--yellow) var(--p1) var(--p2),var(--red) var(--p2) 100%);box-shadow:0 0 32px rgba(34,197,94,.08)}
+.donut::after{content:"";position:absolute;inset:29px;border-radius:50%;background:#07162a;border:1px solid rgba(100,145,194,.16);box-shadow:inset 0 0 18px rgba(0,0,0,.28)}
+.donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;z-index:1}.donut-center strong{font-size:24px}.donut-center span{font-size:9px;color:var(--muted);margin-top:3px}
+.legend{display:grid;gap:13px;min-width:128px}.legend-row{display:grid;grid-template-columns:9px 1fr auto;align-items:center;gap:8px;font-size:10px}.legend-dot{width:8px;height:8px;border-radius:50%;background:var(--dot);box-shadow:0 0 9px var(--dot)}.legend-row span{color:var(--muted)}.legend-row strong{font-size:10px}
 
-/* BLACKLIST FORM */
-.bl-form{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.bl-form input,.bl-form select{
-  background:var(--bg2);border:1px solid var(--border2);border-radius:8px;
-  padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:inherit;
-}
-.bl-form input{flex:1;min-width:200px}
-.bl-form input:focus,.bl-form select:focus{border-color:var(--accent)}
-.bl-form select{background:var(--bg2)}
+/* LINE SVG */
+.line-chart-wrap{height:100%;position:relative}.line-chart{width:100%;height:100%;overflow:visible}.line-grid line{stroke:rgba(122,158,199,.12);stroke-width:1}.line-area{fill:url(#areaGradient)}.line-path{fill:none;stroke:#4b91ff;stroke-width:3;filter:drop-shadow(0 0 7px rgba(59,130,246,.42))}.line-point{fill:#dbeafe;stroke:#3b82f6;stroke-width:2}.line-label{font-size:10px;fill:#617d9a}.line-value{font-size:9px;fill:#8fafcf}
 
-/* DEVICE SELECT */
-.device-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.device-filter select{
-  background:var(--bg2);border:1px solid var(--border2);border-radius:8px;
-  padding:6px 12px;color:var(--text);font-size:12px;outline:none;font-family:inherit;
-  cursor:pointer;
-}
+/* TABLES / FORMS */
+.table-panel{margin-bottom:17px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:860px}
+thead th{height:42px;padding:0 16px;text-align:left;color:#587897;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.75px;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+tbody td{padding:11px 16px;color:#9bb0c7;font-size:10px;border-bottom:1px solid rgba(78,123,172,.10);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}tbody tr{transition:.14s}tbody tr:hover{background:rgba(41,91,151,.08)}
+.td-primary{color:#e5eef9!important;font-weight:500}.td-muted{color:#55718f!important}.td-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.url-cell{max-width:290px}.truncate{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.device-id{display:inline-flex;align-items:center;gap:6px;max-width:220px;padding:5px 8px;border-radius:7px;background:rgba(37,99,235,.12);color:#63a3ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:7px;font-size:9px;font-weight:650;white-space:nowrap;border:1px solid transparent}
+.badge.safe{color:#4ade80;background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.15)}
+.badge.warn{color:#fbbf24;background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.16)}
+.badge.danger{color:#fb7185;background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.16)}
+.badge.admin{color:#c084fc;background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.16)}
+.badge.info{color:#60a5fa;background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.16)}
+.risk{font-weight:750;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.risk.low{color:#4ade80}.risk.mid{color:#fbbf24}.risk.high{color:#fb7185}
+.action-label{display:inline-flex;align-items:center;gap:6px;font-weight:600}.action-label.safe{color:#4ade80}.action-label.warn{color:#fbbf24}.action-label.danger{color:#fb7185}
+.empty{padding:34px!important;text-align:center;color:#4d6a87!important}
+.table-footer{min-height:49px;padding:10px 17px;border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;color:var(--muted-2);font-size:9px}
+.checkbox{accent-color:#3b82f6;width:14px;height:14px;cursor:pointer}
+.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.control{height:38px;padding:0 12px;background:#061326;color:#b9c9da;border:1px solid #1c3c61;border-radius:10px;outline:none;font-size:10px;transition:.17s}
+.control:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.09)}
+.search-control{position:relative;min-width:240px}.search-control .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#557797;width:15px}.search-control input{width:100%;padding-left:37px}
+.btn{height:38px;padding:0 13px;border-radius:10px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;font-size:10px;font-weight:650;transition:.18s;white-space:nowrap}
+.btn .icon{width:15px;height:15px}.btn-primary{color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 7px 18px rgba(37,99,235,.2)}.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-secondary{background:#08172b;border-color:#1c406a;color:#8dbcf8}.btn-secondary:hover{background:#0c2340;border-color:#2d65a4;color:#fff}
+.btn-danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.29);color:#fb7185}.btn-danger:hover{background:rgba(239,68,68,.16)}
+.btn-ghost{width:34px;padding:0;background:#08172b;border-color:#1b385b;color:#6e91b5}.btn-ghost:hover{color:#fff;border-color:#32669d}
+.form-panel{padding:16px 18px}.form-grid{display:grid;grid-template-columns:230px minmax(320px,1fr) auto;gap:10px;align-items:end}.field label{display:block;color:#6f8ba8;font-size:9px;font-weight:600;margin:0 0 7px 2px}.field .control{width:100%}
+.page-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 
-/* EMPTY */
-.empty{padding:30px;text-align:center;color:var(--text3);font-size:12px}
+/* DEVICES */
+.devices-bottom{display:grid;grid-template-columns:1.5fr .8fr;gap:15px}.horizontal-bars{padding:18px}.hbar-row{display:grid;grid-template-columns:minmax(135px,.7fr) 1fr 42px;gap:11px;align-items:center;margin-bottom:15px}.hbar-row:last-child{margin-bottom:0}.hbar-label{font-size:9px;color:#8fa8c1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hbar-track{height:8px;border-radius:999px;background:#09192d;overflow:hidden;border:1px solid rgba(68,116,166,.12)}.hbar-fill{height:100%;width:var(--w);border-radius:inherit;background:linear-gradient(90deg,#2563eb,#38bdf8);box-shadow:0 0 12px rgba(59,130,246,.26)}.hbar-value{text-align:right;color:#67a7ff;font-size:9px;font-weight:700}
+.summary-list{padding:12px 17px}.summary-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(70,115,166,.1);font-size:10px}.summary-item:last-child{border:0}.summary-item span{display:flex;align-items:center;gap:8px;color:#7f98b2}.status-dot{width:8px;height:8px;border-radius:50%;background:var(--status);box-shadow:0 0 8px var(--status)}
 
-/* REFRESH */
-.refresh-btn{
-  background:var(--card2);border:1px solid var(--border2);color:var(--text2);
-  padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
-  font-family:inherit;
-}
-.refresh-btn:hover{background:var(--border);color:var(--text)}
+/* BLACKLIST */
+.blacklist-bottom{display:block}.steps{padding:18px}.step{display:flex;gap:12px;margin-bottom:15px}.step:last-child{margin:0}.step-number{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:rgba(37,99,235,.22);border:1px solid rgba(59,130,246,.32);color:#7eb6ff;font-size:9px;font-weight:700;flex:0 0 auto}.step p{font-size:10px;color:#829bb6;line-height:1.55}.step strong{color:#d9e6f5}
+#page-blacklist .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* TOAST */
+.toast-stack{position:fixed;right:22px;bottom:22px;z-index:500;display:grid;gap:10px}.toast{min-width:280px;max-width:380px;padding:13px 15px;border-radius:12px;border:1px solid var(--border);background:#09182d;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:10px;animation:toastIn .25s ease}.toast.success{border-color:rgba(34,197,94,.35)}.toast.error{border-color:rgba(239,68,68,.38)}.toast .icon{margin-top:1px}.toast.success .icon{color:#4ade80}.toast.error .icon{color:#fb7185}.toast strong{display:block;font-size:10px;margin-bottom:4px}.toast p{font-size:9px;color:var(--muted);line-height:1.45}@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* RESPONSIVE */
+@media(max-width:1250px){.dashboard-charts{grid-template-columns:1fr 1fr}.dashboard-charts .chart-panel:last-child{grid-column:1/-1}.kpi-grid,#page-blacklist .kpi-grid{grid-template-columns:repeat(2,1fr)}.devices-bottom{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 2fr auto}}
+@media(max-width:900px){:root{--sidebar-w:240px}.sidebar{transform:translateX(-100%);transition:.23s}.sidebar.open{transform:none}.main{margin-left:0}.mobile-menu{display:grid;place-items:center}.topbar{height:74px}.content{padding-top:18px}#login-screen{grid-template-columns:1fr}.login-hero{display:none}.login-panel{border-left:0}.form-grid{grid-template-columns:1fr 2fr auto}.form-grid .btn{align-self:end}.toolbar{width:100%}.search-control{flex:1;min-width:210px}}
+@media(max-width:650px){.kpi-grid,#page-blacklist .kpi-grid,.dashboard-charts{grid-template-columns:1fr}.dashboard-charts .chart-panel:last-child{grid-column:auto}.kpi-card{min-height:116px}.panel-header{align-items:flex-start;flex-direction:column}.panel-header .toolbar,.panel-header .page-tools{width:100%}.search-control{width:100%;min-width:100%}.control{max-width:100%}.form-grid{grid-template-columns:1fr}.form-grid .field:nth-child(2){grid-column:auto}.form-grid .btn{width:100%}.donut-layout{flex-direction:column;gap:15px}.chart-panel{min-height:390px}.chart-body{height:325px}.login-panel{padding:17px}.login-card{padding:30px 23px}.table-footer{align-items:flex-start;gap:10px;flex-direction:column}.topbar-sub{max-width:220px}.refresh-btn span:last-child{display:none}}
 </style>
 </head>
 <body>
 
+<!-- SVG icon templates are rendered inline for maximum portability. -->
+
 <!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">🛡️</div>
-    <h1>SafeURL Guard</h1>
-    <p>Panel de Administrador — Acceso restringido</p>
-    <input type="password" id="admin-password" placeholder="Contraseña de administrador" autofocus>
-    <button id="btn-login">Iniciar sesión</button>
-    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+<section id="login-screen">
+  <div class="login-hero">
+    <div class="login-brand">
+      <div class="brand-shield" aria-hidden="true">
+        <svg viewBox="0 0 64 72"><defs><linearGradient id="shieldGradLogin" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><path d="M32 3 56 12v19c0 17-9.8 29.7-24 37C17.8 60.7 8 48 8 31V12Z" fill="url(#shieldGradLogin)" stroke="#93c5fd" stroke-width="2"/><path d="M32 8v54" stroke="#dbeafe" stroke-opacity=".58" stroke-width="2"/></svg>
+      </div>
+      <div><h1>SafeURL Guard</h1></div>
+    </div>
+    <h2 class="hero-heading">Controla la seguridad web desde un <span>solo lugar.</span></h2>
+    <p class="hero-copy">Supervisa las URLs analizadas, identifica amenazas y administra reglas de bloqueo para todos los dispositivos conectados.</p>
   </div>
-</div>
+  <div class="login-panel">
+    <form class="login-card" id="login-form">
+      <div class="login-card-header">
+        <div class="brand-shield" aria-hidden="true">
+          <svg viewBox="0 0 64 72"><defs><linearGradient id="shieldGradCard" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><path d="M32 3 56 12v19c0 17-9.8 29.7-24 37C17.8 60.7 8 48 8 31V12Z" fill="url(#shieldGradCard)" stroke="#93c5fd" stroke-width="2"/><path d="M32 8v54" stroke="#dbeafe" stroke-opacity=".58" stroke-width="2"/></svg>
+        </div>
+        <h2>Panel de Administrador</h2>
+        <p>Acceso seguro y monitoreo inteligente</p>
+      </div>
+      <label class="form-label" for="admin-password">Contraseña</label>
+      <div class="input-wrap">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+        <input type="password" id="admin-password" placeholder="Ingresa tu contraseña" autocomplete="current-password" autofocus>
+        <button class="toggle-password" id="btn-toggle-password" type="button" aria-label="Mostrar contraseña"><span class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></span></button>
+      </div>
+      <button class="login-button" id="btn-login" type="submit">Iniciar sesión</button>
+      <div class="login-error" id="login-error">No se pudo iniciar sesión. Verifica la contraseña.</div>
+      <div class="login-security"><div class="feature-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6Z"/><path d="m9 12 2 2 4-5"/></svg></span></div><span>La sesión administrativa se almacena únicamente durante esta pestaña del navegador.</span></div>
+    </form>
+  </div>
+</section>
 
 <!-- APP -->
 <div id="app-screen">
   <div class="layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-logo">
-        <div class="logo-icon">🛡️</div>
-        <div>
-          <div class="logo-text">SafeURL Guard</div>
-          <div class="logo-sub">Panel Admin</div>
-        </div>
+        <div class="brand-shield"><svg viewBox="0 0 64 72"><defs><linearGradient id="shieldGradNav" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><path d="M32 3 56 12v19c0 17-9.8 29.7-24 37C17.8 60.7 8 48 8 31V12Z" fill="url(#shieldGradNav)" stroke="#93c5fd" stroke-width="2"/><path d="M32 8v54" stroke="#dbeafe" stroke-opacity=".58" stroke-width="2"/></svg></div>
+        <div><div class="logo-text">SafeURL Guard</div><div class="logo-sub">Panel de Administrador</div></div>
       </div>
       <nav class="sidebar-nav">
         <div class="nav-section">Principal</div>
-        <button class="nav-item active" data-page="dashboard">📊 Dashboard</button>
-        <button class="nav-item" data-page="dispositivos">💻 Dispositivos</button>
-        <button class="nav-item" data-page="historial">📋 Historial</button>
-        <div class="nav-section" style="margin-top:8px">Control</div>
-        <button class="nav-item" data-page="blacklist">🚫 Blacklist</button>
+        <button class="nav-item active" data-page="dashboard"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</button>
+        <button class="nav-item" data-page="dispositivos"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></span>Dispositivos</button>
+        <button class="nav-item" data-page="historial"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>Historial</button>
+        <div class="nav-section" style="margin-top:10px">Control</div>
+        <button class="nav-item" data-page="blacklist"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg></span>Blacklist</button>
       </nav>
       <div class="sidebar-footer">
-        <button class="logout-btn" id="btn-logout">🔓 Cerrar sesión</button>
+        <div class="admin-profile"><div class="avatar">PA</div><div><strong>Panel Admin</strong><span>Administrador</span></div></div>
+        <button class="logout-btn" id="btn-logout">Cerrar sesión</button>
       </div>
     </aside>
 
-    <!-- MAIN -->
     <main class="main">
-      <div class="topbar">
-        <div>
-          <div class="topbar-title" id="page-title">Dashboard</div>
-          <div class="topbar-sub" id="page-sub">Vista general del sistema</div>
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" id="btn-mobile-menu" aria-label="Abrir menú"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span></button>
+          <div><div class="topbar-title" id="page-title">Dashboard</div><div class="topbar-sub" id="page-sub">Visión general de la seguridad de URLs</div></div>
         </div>
-        <button class="refresh-btn" id="btn-refresh">🔄 Actualizar</button>
-      </div>
+        <button class="refresh-btn" id="btn-refresh"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 6v5h-5"/><path d="M18.2 15A7 7 0 1 1 18 8l2 3"/></svg></span><span>Actualizar</span></button>
+      </header>
 
       <div class="content">
-
         <!-- DASHBOARD -->
-        <div class="page active" id="page-dashboard">
+        <section class="page active" id="page-dashboard">
           <div class="kpi-grid">
-            <div class="kpi-card blue"><div class="kpi-label">Total análisis</div><div class="kpi-value" id="kpi-total">–</div></div>
-            <div class="kpi-card red"><div class="kpi-label">Bloqueadas</div><div class="kpi-value" id="kpi-blocked">–</div></div>
-            <div class="kpi-card purple"><div class="kpi-label">Dispositivos</div><div class="kpi-value" id="kpi-devices">–</div></div>
-            <div class="kpi-card green"><div class="kpi-label">Precisión ML</div><div class="kpi-value" id="kpi-acc">–</div></div>
+            <article class="kpi-card blue"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M10 7v6m-3-3h6"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">URLs analizadas</div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-note">Total <strong>registrado</strong></div></div></div></article>
+            <article class="kpi-card red"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6Z"/><path d="m9 9 6 6m0-6-6 6"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">URLs bloqueadas</div><div class="kpi-value" id="kpi-blocked">0</div><div class="kpi-note"><strong id="kpi-block-rate">0%</strong> del total</div></div></div></article>
+            <article class="kpi-card purple"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 18h6"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Dispositivos activos</div><div class="kpi-value" id="kpi-devices">0</div><div class="kpi-note"><strong id="kpi-online">0</strong> en línea</div></div></div></article>
+            <article class="kpi-card green"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Precisión del modelo</div><div class="kpi-value" id="kpi-acc">N/A</div><div class="kpi-note">Modelo <strong>ML actual</strong></div></div></div></article>
           </div>
-          <div class="table-card">
-            <div class="table-header"><span class="table-title">Últimas URLs analizadas (todos los dispositivos)</span></div>
-            <table>
-              <thead><tr><th>Dispositivo</th><th>URL</th><th>Clasificación</th><th>Riesgo</th><th>Acción</th><th>Fecha</th></tr></thead>
-              <tbody id="dash-tbody"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
-            </table>
+
+          <div class="dashboard-charts">
+            <article class="panel chart-panel"><div class="panel-header"><div><div class="panel-title">URLs clasificadas por tipo</div><div class="panel-subtitle">Distribución acumulada</div></div></div><div class="chart-body" id="classification-chart"><div class="chart-empty">Cargando gráfico...</div></div></article>
+            <article class="panel chart-panel"><div class="panel-header"><div><div class="panel-title">Acciones tomadas</div><div class="panel-subtitle">Permitidas, advertidas y bloqueadas</div></div></div><div class="chart-body" id="actions-chart"><div class="chart-empty">Cargando gráfico...</div></div></article>
+            <article class="panel chart-panel"><div class="panel-header"><div><div class="panel-title">Actividad de análisis</div><div class="panel-subtitle">Últimos 7 días</div></div></div><div class="chart-body" id="activity-chart"><div class="chart-empty">Cargando gráfico...</div></div></article>
           </div>
-        </div>
+
+          <article class="panel table-panel">
+            <div class="panel-header"><div><div class="panel-title">Últimas URLs analizadas</div><div class="panel-subtitle">Actividad reciente de todos los dispositivos</div></div><button class="btn btn-secondary" id="btn-go-history">Ver historial completo</button></div>
+            <div class="table-wrap"><table><thead><tr><th>URL</th><th>Clasificación</th><th>Riesgo</th><th>Acción</th><th>Dispositivo</th><th>Fecha</th></tr></thead><tbody id="dash-tbody"><tr><td colspan="6" class="empty">Cargando registros...</td></tr></tbody></table></div>
+          </article>
+        </section>
 
         <!-- DISPOSITIVOS -->
-        <div class="page" id="page-dispositivos">
-          <div class="table-card">
-            <div class="table-header">
-              <span class="table-title">Dispositivos registrados</span>
-              <div class="device-filter">
-                <span id="dev-selected-count" style="font-size:11px;color:var(--text3)"></span>
-                <button class="btn btn-danger btn-sm" id="btn-delete-devices" style="display:none" onclick="eliminarDispositivosSeleccionados()">🗑️ Eliminar seleccionados</button>
-              </div>
-            </div>
-            <table>
-              <thead><tr>
-                <th style="width:30px"><input type="checkbox" id="dev-select-all" onclick="toggleSelectAllDevices(this)"></th>
-                <th>Device ID</th><th>Nombre</th><th>Primera conexión</th><th>Última conexión</th><th>Total URLs</th><th>Acciones</th>
-              </tr></thead>
-              <tbody id="devices-tbody"><tr><td colspan="7" class="empty">Cargando...</td></tr></tbody>
-            </table>
+        <section class="page" id="page-dispositivos">
+          <div class="kpi-grid">
+            <article class="kpi-card blue"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Dispositivos registrados</div><div class="kpi-value" id="dev-kpi-total">0</div><div class="kpi-note">Total en la <strong>plataforma</strong></div></div></div></article>
+            <article class="kpi-card green"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">En línea</div><div class="kpi-value" id="dev-kpi-online">0</div><div class="kpi-note">Con conexión <strong>reciente</strong></div></div></div></article>
+            <article class="kpi-card purple"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">URLs procesadas</div><div class="kpi-value" id="dev-kpi-urls">0</div><div class="kpi-note">Suma por <strong>dispositivo</strong></div></div></div></article>
+            <article class="kpi-card yellow"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Sin conexión</div><div class="kpi-value" id="dev-kpi-offline">0</div><div class="kpi-note">Incluye <strong>inactivos</strong></div></div></div></article>
           </div>
-        </div>
+
+          <article class="panel table-panel">
+            <div class="panel-header">
+              <div><div class="panel-title">Dispositivos registrados</div><div class="panel-subtitle">Equipos con la extensión SafeURL Guard</div></div>
+              <div class="toolbar"><div class="search-control"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></span><input class="control" id="device-search" placeholder="Buscar por ID o nombre..."></div><select class="control" id="device-status-filter"><option value="">Todos los estados</option><option value="online">En línea</option><option value="offline">Desconectado</option><option value="uninstalled">Desinstalado</option></select><span id="dev-selected-count" class="td-muted"></span><button class="btn btn-danger" id="btn-delete-devices" style="display:none">Eliminar seleccionados</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th><input type="checkbox" class="checkbox" id="dev-select-all"></th><th>Device ID</th><th>Nombre</th><th>Primera conexión</th><th>Última conexión</th><th>Estado</th><th>Total URLs</th><th>Acciones</th></tr></thead><tbody id="devices-tbody"><tr><td colspan="8" class="empty">Cargando dispositivos...</td></tr></tbody></table></div>
+            <div class="table-footer"><span id="device-results-count">0 dispositivos</span><span>Los estados se calculan según la última conexión reportada.</span></div>
+          </article>
+
+          <div class="devices-bottom">
+            <article class="panel"><div class="panel-header"><div><div class="panel-title">Actividad por dispositivo</div><div class="panel-subtitle">URLs acumuladas por equipo</div></div></div><div class="horizontal-bars" id="device-activity"><div class="chart-empty" style="height:150px">Sin datos</div></div></article>
+            <article class="panel"><div class="panel-header"><div><div class="panel-title">Resumen de la red</div><div class="panel-subtitle">Estado actual</div></div></div><div class="summary-list" id="device-summary"></div></article>
+          </div>
+        </section>
 
         <!-- HISTORIAL -->
-        <div class="page" id="page-historial">
-          <div class="table-card">
-            <div class="table-header">
-              <span class="table-title">Historial por dispositivo</span>
-              <div class="device-filter">
-                <select id="hist-device-filter"><option value="">Todos los dispositivos</option></select>
-                <button class="btn btn-danger btn-sm" id="btn-clear-hist">🗑️ Limpiar selección</button>
-              </div>
+        <section class="page" id="page-historial">
+          <article class="panel table-panel">
+            <div class="panel-header">
+              <div><div class="panel-title">Filtros del historial</div><div class="panel-subtitle">Encuentra rápidamente una URL o dispositivo</div></div>
+              <div class="toolbar"><button class="btn btn-secondary" id="btn-export-history"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 19h14"/></svg></span>Exportar CSV</button><button class="btn btn-danger" id="btn-clear-hist">Limpiar selección</button></div>
             </div>
-            <table>
-              <thead><tr><th>Dispositivo</th><th>URL</th><th>Clasificación</th><th>Riesgo</th><th>Acción</th><th>Fecha</th></tr></thead>
-              <tbody id="hist-tbody"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
-            </table>
+            <div class="form-panel"><div class="toolbar"><div class="search-control"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></span><input class="control" id="history-search" placeholder="Buscar por URL o dominio..."></div><select class="control" id="hist-device-filter"><option value="">Todos los dispositivos</option></select><select class="control" id="history-class-filter"><option value="">Todas las clasificaciones</option></select><select class="control" id="history-action-filter"><option value="">Todas las acciones</option><option value="Permitido">Permitido</option><option value="Advertencia">Advertencia</option><option value="Bloqueado">Bloqueado</option></select></div></div>
+          </article>
+
+          <div class="kpi-grid">
+            <article class="kpi-card blue"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Registros mostrados</div><div class="kpi-value" id="hist-kpi-total">0</div><div class="kpi-note">Según los <strong>filtros</strong></div></div></div></article>
+            <article class="kpi-card red"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6Z"/><path d="m9 9 6 6m0-6-6 6"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Bloqueadas</div><div class="kpi-value" id="hist-kpi-blocked">0</div><div class="kpi-note">Acción de <strong>protección</strong></div></div></div></article>
+            <article class="kpi-card green"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Permitidas</div><div class="kpi-value" id="hist-kpi-allowed">0</div><div class="kpi-note">Navegación <strong>autorizada</strong></div></div></div></article>
+            <article class="kpi-card yellow"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 22 20H2Z"/><path d="M12 9v4m0 3h.01"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Advertencias</div><div class="kpi-value" id="hist-kpi-warn">0</div><div class="kpi-note">Riesgo <strong>intermedio</strong></div></div></div></article>
           </div>
-        </div>
+
+          <article class="panel table-panel"><div class="panel-header"><div><div class="panel-title">Historial por dispositivo</div><div class="panel-subtitle">Se muestran hasta 1,000 registros recientes</div></div></div><div class="table-wrap"><table><thead><tr><th>Dispositivo</th><th>URL</th><th>Clasificación</th><th>Riesgo</th><th>Acción</th><th>Fecha</th></tr></thead><tbody id="hist-tbody"><tr><td colspan="6" class="empty">Cargando historial...</td></tr></tbody></table></div><div class="table-footer"><span id="history-results-count">0 resultados</span><span>Ordenado del registro más reciente al más antiguo.</span></div></article>
+        </section>
 
         <!-- BLACKLIST -->
-        <div class="page" id="page-blacklist">
-          <div class="table-card">
-            <div class="table-header">
-              <span class="table-title">Blacklist — Bloqueo por patrón</span>
-            </div>
-            <!-- Formulario agregar -->
-            <div class="bl-form">
-              <select id="bl-device-select">
-                <option value="*">🌐 Todos los dispositivos</option>
-              </select>
-              <input type="text" id="bl-patron" placeholder="Palabra o URL a bloquear (ej: casino, phishing.tk)">
-              <button class="btn btn-primary" id="btn-add-bl">➕ Agregar bloqueo</button>
-            </div>
-            <table>
-              <thead><tr><th>Dispositivo</th><th>Patrón bloqueado</th><th>Tipo</th><th>Fecha</th><th>Acción</th></tr></thead>
-              <tbody id="bl-tbody"><tr><td colspan="5" class="empty">Sin entradas en la blacklist</td></tr></tbody>
-            </table>
+        <section class="page" id="page-blacklist">
+          <div class="kpi-grid">
+            <article class="kpi-card blue"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6Z"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Patrones activos</div><div class="kpi-value" id="bl-kpi-total">0</div><div class="kpi-note">Reglas de <strong>bloqueo</strong></div></div></div></article>
+            <article class="kpi-card green"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Reglas globales</div><div class="kpi-value" id="bl-kpi-global">0</div><div class="kpi-note">Aplican a <strong>todos</strong></div></div></div></article>
+            <article class="kpi-card purple"><div class="kpi-top"><div class="kpi-icon"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 18h6"/></svg></span></div><div class="kpi-meta"><div class="kpi-label">Reglas específicas</div><div class="kpi-value" id="bl-kpi-specific">0</div><div class="kpi-note">Por <strong>dispositivo</strong></div></div></div></article>
           </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px">
-            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">ℹ️ Cómo funciona la blacklist</div>
-            <div style="font-size:11px;color:var(--text2);line-height:1.6">
-              • <strong>Todos los dispositivos (★)</strong> — el bloqueo aplica a TODOS los usuarios de la extensión<br>
-              • <strong>Device ID específico</strong> — solo ese dispositivo es bloqueado<br>
-              • El bloqueo es <strong>inmediato</strong> — la extensión consulta la blacklist antes de cada análisis<br>
-              • Si la URL contiene la palabra/patrón, muestra pantalla de bloqueo <strong>sin opción de continuar</strong>
-            </div>
-          </div>
-        </div>
 
+          <article class="panel table-panel"><div class="panel-header"><div><div class="panel-title">Bloqueo por patrón</div><div class="panel-subtitle">Agrega una palabra, dominio o URL a la blacklist</div></div></div><div class="form-panel"><div class="form-grid"><div class="field"><label>Dispositivo</label><select class="control" id="bl-device-select"><option value="*">Todos los dispositivos</option></select></div><div class="field"><label>Palabra o URL a bloquear</label><input class="control" id="bl-patron" placeholder="Ej.: casino, phishing.tk o bit.ly"></div><button class="btn btn-primary" id="btn-add-bl">Agregar bloqueo</button></div></div></article>
+
+          <article class="panel table-panel"><div class="panel-header"><div><div class="panel-title">Bloqueos configurados</div><div class="panel-subtitle">Reglas activas en la extensión</div></div><div class="toolbar"><div class="search-control"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></span><input class="control" id="blacklist-search" placeholder="Buscar patrón..."></div></div></div><div class="table-wrap"><table><thead><tr><th>Dispositivo</th><th>Patrón bloqueado</th><th>Fecha</th><th>Acción</th></tr></thead><tbody id="bl-tbody"><tr><td colspan="4" class="empty">Cargando blacklist...</td></tr></tbody></table></div><div class="table-footer"><span id="blacklist-results-count">0 reglas</span><span>Los cambios se aplican de forma inmediata.</span></div></article>
+
+          <div class="blacklist-bottom"><article class="panel"><div class="panel-header"><div><div class="panel-title">Cómo funciona la blacklist</div><div class="panel-subtitle">Flujo de aplicación de las reglas</div></div></div><div class="steps"><div class="step"><div class="step-number">1</div><p><strong>Selecciona el alcance.</strong> Una regla global aplica a todos los dispositivos, mientras una regla específica solo afecta al equipo elegido.</p></div><div class="step"><div class="step-number">2</div><p><strong>Define el patrón.</strong> La extensión consulta la blacklist antes de ejecutar el análisis del modelo.</p></div><div class="step"><div class="step-number">3</div><p><strong>Bloqueo inmediato.</strong> Cuando la URL contiene el patrón, se muestra la pantalla de bloqueo sin opción de continuar.</p></div></div></article></div>
+        </section>
       </div>
     </main>
   </div>
 </div>
+<div class="toast-stack" id="toast-stack"></div>
 
 <script>
 const API = '';
 let TOKEN = '';
+let stats_cache = {};
 let dispositivos_cache = [];
+let historial_cache = [];
+let blacklist_cache = [];
 
-// ── AUTH ──────────────────────────────────────────────────────────────────────
-
-document.getElementById('btn-login').addEventListener('click', login);
-document.getElementById('admin-password').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
-
-async function login() {
-  const pwd = document.getElementById('admin-password').value;
-  const errEl = document.getElementById('login-error');
-  errEl.style.display = 'none';
-  try {
-    const r = await fetch(API + '/admin/login', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({password: pwd})
-    });
-    if (!r.ok) { errEl.style.display='block'; return; }
-    const data = await r.json();
-    TOKEN = data.token;
-    sessionStorage.setItem('admin_token', TOKEN);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'block';
-    loadAll();
-  } catch(e) {
-    errEl.style.display = 'block';
-  }
-}
-
-document.getElementById('btn-logout').addEventListener('click', async () => {
-  await fetch(API + '/admin/logout', { method:'POST', headers: authHeaders() });
-  sessionStorage.removeItem('admin_token');
-  location.reload();
-});
-
-function authHeaders() {
-  return { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + TOKEN };
-}
-
-// ── NAVIGATION ────────────────────────────────────────────────────────────────
-
-const pageTitles = {
-  dashboard: ['Dashboard', 'Vista general del sistema'],
-  dispositivos: ['Dispositivos', 'Todos los dispositivos con la extensión instalada'],
-  historial: ['Historial', 'URLs analizadas por cada dispositivo'],
-  blacklist: ['Blacklist', 'Control de URLs bloqueadas por dispositivo'],
+const ICONS = {
+  check: '<span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span>',
+  block: '<span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m7 7 10 10"/></svg></span>',
+  warn: '<span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 22 20H2Z"/><path d="M12 9v4m0 3h.01"/></svg></span>',
+  device: '<span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 18h6"/></svg></span>',
+  trash: '<span class="icon"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/></svg></span>'
 };
 
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const page = btn.dataset.page;
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('page-' + page).classList.add('active');
-    document.getElementById('page-title').textContent = pageTitles[page][0];
-    document.getElementById('page-sub').textContent = pageTitles[page][1];
-    if (page === 'historial') loadHistorial();
-    if (page === 'blacklist') loadBlacklist();
-    if (page === 'dispositivos') loadDispositivos();
-  });
+function escapeHtml(value='') {
+  return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+}
+function formatNumber(value) { return Number(value || 0).toLocaleString('es-PE'); }
+function normalizeText(value='') { return String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function authHeaders() { return {'Content-Type':'application/json','Authorization':'Bearer '+TOKEN}; }
+
+async function apiFetch(url, options={}) {
+  const response = await fetch(API + url, {...options, headers:{...authHeaders(), ...(options.headers || {})}});
+  if (response.status === 401) {
+    sessionStorage.removeItem('admin_token');
+    TOKEN = '';
+    showLogin();
+    throw new Error('Sesión expirada');
+  }
+  if (!response.ok) {
+    let message = 'No se pudo completar la operación';
+    try { const data = await response.json(); message = data.detail || data.message || message; } catch (_) {}
+    throw new Error(message);
+  }
+  const contentType = response.headers.get('content-type') || '';
+  return contentType.includes('application/json') ? response.json() : response.text();
+}
+
+function showToast(title, message='', type='success') {
+  const stack = document.getElementById('toast-stack');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `${type==='success'?ICONS.check:ICONS.warn}<div><strong>${escapeHtml(title)}</strong><p>${escapeHtml(message)}</p></div>`;
+  stack.appendChild(toast);
+  setTimeout(() => toast.remove(), 3400);
+}
+function setRefreshLoading(value) { document.getElementById('btn-refresh').classList.toggle('loading', value); }
+
+// AUTH
+const loginForm = document.getElementById('login-form');
+loginForm.addEventListener('submit', async event => { event.preventDefault(); await login(); });
+document.getElementById('btn-toggle-password').addEventListener('click', () => {
+  const input = document.getElementById('admin-password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+});
+async function login() {
+  const password = document.getElementById('admin-password').value;
+  const error = document.getElementById('login-error');
+  const button = document.getElementById('btn-login');
+  error.style.display = 'none';
+  button.disabled = true; button.textContent = 'Verificando...';
+  try {
+    const response = await fetch(API + '/admin/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});
+    if (!response.ok) throw new Error('Contraseña incorrecta');
+    const data = await response.json();
+    TOKEN = data.token;
+    sessionStorage.setItem('admin_token', TOKEN);
+    showApp();
+    await loadAll();
+  } catch (e) {
+    error.textContent = e.message || 'No se pudo iniciar sesión.';
+    error.style.display = 'block';
+  } finally { button.disabled = false; button.textContent = 'Iniciar sesión'; }
+}
+function showApp() { document.getElementById('login-screen').style.display='none'; document.getElementById('app-screen').style.display='block'; }
+function showLogin() { document.getElementById('app-screen').style.display='none'; document.getElementById('login-screen').style.display='grid'; }
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  try { await apiFetch('/admin/logout', {method:'POST'}); } catch (_) {}
+  sessionStorage.removeItem('admin_token'); TOKEN=''; location.reload();
 });
 
-document.getElementById('btn-refresh').addEventListener('click', loadAll);
-
-// ── DATA LOADING ──────────────────────────────────────────────────────────────
-
-async function loadAll() {
-  await loadDispositivos();
-  await Promise.all([loadStats(), loadDashHistorial()]);
+// NAVIGATION
+const pageTitles = {
+  dashboard:['Dashboard','Visión general de la seguridad de URLs'],
+  dispositivos:['Dispositivos','Todos los dispositivos con la extensión instalada'],
+  historial:['Historial','URLs analizadas por dispositivo'],
+  blacklist:['Blacklist','Control de URLs bloqueadas por dispositivo']
+};
+function openPage(page) {
+  document.querySelectorAll('.nav-item').forEach(button => button.classList.toggle('active', button.dataset.page===page));
+  document.querySelectorAll('.page').forEach(section => section.classList.toggle('active', section.id===`page-${page}`));
+  document.getElementById('page-title').textContent = pageTitles[page][0];
+  document.getElementById('page-sub').textContent = pageTitles[page][1];
+  document.getElementById('sidebar').classList.remove('open');
+  if (page==='dispositivos') renderDevicesPage();
+  if (page==='historial') renderHistoryPage();
+  if (page==='blacklist') renderBlacklistPage();
 }
+document.querySelectorAll('.nav-item').forEach(button => button.addEventListener('click', () => openPage(button.dataset.page)));
+document.getElementById('btn-go-history').addEventListener('click', () => openPage('historial'));
+document.getElementById('btn-mobile-menu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
 
-async function loadStats() {
-  try {
-    const r = await fetch(API + '/admin/estadisticas', {headers: authHeaders()});
-    const d = await r.json();
-    document.getElementById('kpi-total').textContent = d.total || 0;
-    document.getElementById('kpi-blocked').textContent = d.bloqueadas || 0;
-    document.getElementById('kpi-devices').textContent = d.dispositivos || 0;
-    document.getElementById('kpi-acc').textContent = d.modelo_accuracy ? Math.round(d.modelo_accuracy*100)+'%' : 'N/A';
-  } catch(e) { console.error(e); }
+// DATE / STATUS HELPERS
+function toUtcDate(value) {
+  if (!value) return null;
+  let iso = String(value).includes('T') ? String(value) : String(value).replace(' ','T');
+  if (!iso.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(iso)) iso += 'Z';
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
-
-async function loadDashHistorial() {
-  try {
-    const r = await fetch(API + '/admin/historial?limit=30', {headers: authHeaders()});
-    const items = await r.json();
-    renderHistorialTable('dash-tbody', items);
-  } catch(e) {}
+function formatFecha(value) {
+  const date = toUtcDate(value);
+  return date ? date.toLocaleString('es-PE',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}) : 'Sin fecha';
 }
-
-async function loadDispositivos() {
-  try {
-    const r = await fetch(API + '/admin/dispositivos', {headers: authHeaders()});
-    dispositivos_cache = await r.json();
-    renderDispositivos(dispositivos_cache);
-    populateDeviceSelects(dispositivos_cache);
-  } catch(e) {}
+function connectionStatus(device) {
+  if (device.activo === false || device.activo === 0) return {key:'uninstalled',label:'Desinstalado',className:'danger',color:'#ef4444'};
+  const date = toUtcDate(device.ultima_vez);
+  if (!date) return {key:'offline',label:'Sin datos',className:'warn',color:'#f59e0b'};
+  const minutes = (Date.now() - date.getTime()) / 60000;
+  if (minutes >= 0 && minutes <= 2.5) return {key:'online',label:'En línea',className:'safe',color:'#22c55e'};
+  return {key:'offline',label:'Desconectado',className:'warn',color:'#f59e0b'};
 }
-
-async function loadHistorial() {
-  const deviceId = document.getElementById('hist-device-filter').value;
-  const url = API + '/admin/historial?limit=100' + (deviceId ? '&device_id='+deviceId : '');
-  try {
-    const r = await fetch(url, {headers: authHeaders()});
-    const items = await r.json();
-    renderHistorialTable('hist-tbody', items);
-  } catch(e) {}
-}
-
-async function loadBlacklist() {
-  try {
-    const r = await fetch(API + '/admin/blacklist', {headers: authHeaders()});
-    const items = await r.json();
-    renderBlacklist(items);
-  } catch(e) {}
-}
-
-// ── RENDER ────────────────────────────────────────────────────────────────────
-
-function riskClass(r) { return r>=70?'high':r>=40?'mid':'low'; }
-function badgeClass(c) {
-  if(c==='Segura') return 'safe';
-  if(c==='Bloqueado por admin') return 'admin';
-  if(['Phishing','Malware','Defacement'].includes(c)) return 'danger';
+function riskClass(risk) { return Number(risk)>=70?'high':Number(risk)>=40?'mid':'low'; }
+function classificationBadge(value) {
+  if (value==='Segura') return 'safe';
+  if (value==='Bloqueado por admin') return 'admin';
+  if (['Phishing','Malware','Defacement'].includes(value)) return 'danger';
   return 'warn';
 }
-
-function formatFecha(fechaStr) {
-  const d = toUtcDate(fechaStr);
-  if (!d) return '–';
-  return d.toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' });
+function actionClass(value) { return value==='Bloqueado'?'danger':value==='Advertencia'?'warn':'safe'; }
+function actionIcon(value) { return value==='Bloqueado'?ICONS.block:value==='Advertencia'?ICONS.warn:ICONS.check; }
+function domainFromUrl(url='') { try { return new URL(url).hostname || url; } catch (_) { return url; } }
+function deviceDisplay(id) {
+  const found = dispositivos_cache.find(device => device.device_id===id);
+  return found?.nombre || id || 'Sin dispositivo';
 }
 
-function toUtcDate(fechaStr) {
-  if (!fechaStr) return null;
-  let iso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T');
-  // Las fechas que manda el backend están en UTC pero sin la "Z" al final,
-  // así que hay que marcarlas como UTC a mano, o el navegador las
-  // interpreta como si ya fueran hora local (y desfasa todo 5 horas).
-  if (!iso.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(iso)) iso += 'Z';
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? null : d;
+// DATA
+async function loadAll() {
+  setRefreshLoading(true);
+  try {
+    const [stats, devices, history, blacklist] = await Promise.all([
+      apiFetch('/admin/estadisticas'),
+      apiFetch('/admin/dispositivos'),
+      apiFetch('/admin/historial?limit=1000'),
+      apiFetch('/admin/blacklist')
+    ]);
+    stats_cache = stats || {};
+    dispositivos_cache = Array.isArray(devices) ? devices : [];
+    historial_cache = Array.isArray(history) ? history : [];
+    blacklist_cache = Array.isArray(blacklist) ? blacklist : [];
+    populateDeviceSelects();
+    populateClassificationFilter();
+    renderDashboard();
+    renderDevicesPage();
+    renderHistoryPage();
+    renderBlacklistPage();
+  } catch (e) { showToast('Error al actualizar', e.message, 'error'); }
+  finally { setRefreshLoading(false); }
+}
+document.getElementById('btn-refresh').addEventListener('click', loadAll);
+
+// DASHBOARD
+function renderDashboard() {
+  const total = Number(stats_cache.total || 0);
+  const blocked = Number(stats_cache.bloqueadas || 0);
+  const online = dispositivos_cache.filter(device => connectionStatus(device).key==='online').length;
+  document.getElementById('kpi-total').textContent = formatNumber(total);
+  document.getElementById('kpi-blocked').textContent = formatNumber(blocked);
+  document.getElementById('kpi-block-rate').textContent = total ? `${Math.round(blocked/total*100)}%` : '0%';
+  document.getElementById('kpi-devices').textContent = formatNumber(stats_cache.dispositivos || dispositivos_cache.length);
+  document.getElementById('kpi-online').textContent = formatNumber(online);
+  document.getElementById('kpi-acc').textContent = stats_cache.modelo_accuracy != null ? `${Math.round(Number(stats_cache.modelo_accuracy)*100)}%` : 'N/A';
+  renderClassificationChart(stats_cache.por_tipo || []);
+  renderActionsChart(stats_cache.por_accion || deriveActionCounts(historial_cache));
+  renderActivityChart(stats_cache.por_dia || deriveDailyCounts(historial_cache));
+  renderHistoryTable('dash-tbody', historial_cache.slice(0,8));
+}
+function deriveActionCounts(items) {
+  const counts = {};
+  items.forEach(item => counts[item.accion]=(counts[item.accion]||0)+1);
+  return Object.entries(counts).map(([accion,total]) => ({accion,total}));
+}
+function deriveDailyCounts(items) {
+  const counts = {};
+  items.forEach(item => { const date=toUtcDate(item.fecha); if(date){ const key=date.toLocaleDateString('en-CA',{timeZone:'America/Lima'}); counts[key]=(counts[key]||0)+1; }});
+  return Object.entries(counts).map(([fecha,total]) => ({fecha,total}));
+}
+function classificationColor(label) {
+  if (label==='Segura') return ['#4ade80','#16a34a','rgba(34,197,94,.25)'];
+  if (['Phishing','Malware','Defacement'].includes(label)) return ['#fb7185','#dc2626','rgba(239,68,68,.25)'];
+  if (label==='Bloqueado por admin') return ['#c084fc','#7e22ce','rgba(168,85,247,.25)'];
+  return ['#fbbf24','#d97706','rgba(245,158,11,.25)'];
+}
+function renderClassificationChart(rows) {
+  const container = document.getElementById('classification-chart');
+  const sorted = [...rows].sort((a,b)=>Number(b.total)-Number(a.total)).slice(0,5);
+  if (!sorted.length) { container.innerHTML='<div class="chart-empty">Aún no hay clasificaciones.</div>'; return; }
+  const max = Math.max(...sorted.map(row=>Number(row.total||0)),1);
+  container.innerHTML = `<div class="bar-chart">${sorted.map(row=>{ const [c1,c2,shadow]=classificationColor(row.clasificacion); const height=Math.max(3,Number(row.total||0)/max*100); return `<div class="bar-item"><div class="bar-fill" style="--h:${height}%;--c1:${c1};--c2:${c2};--shadow-c:${shadow}"><span class="bar-value">${formatNumber(row.total)}</span><span class="bar-label" title="${escapeHtml(row.clasificacion)}">${escapeHtml(row.clasificacion)}</span></div></div>`; }).join('')}</div>`;
+}
+function renderActionsChart(rows) {
+  const container = document.getElementById('actions-chart');
+  const get = action => Number(rows.find(row => row.accion===action)?.total || 0);
+  const allowed=get('Permitido'), warning=get('Advertencia'), blocked=get('Bloqueado');
+  const total=allowed+warning+blocked;
+  if (!total) { container.innerHTML='<div class="chart-empty">Aún no hay acciones registradas.</div>'; return; }
+  const p1=allowed/total*100, p2=(allowed+warning)/total*100;
+  const data=[['Permitido',allowed,'#22c55e'],['Advertencia',warning,'#f59e0b'],['Bloqueado',blocked,'#ef4444']];
+  container.innerHTML = `<div class="donut-layout"><div class="donut" style="--p1:${p1}%;--p2:${p2}%"><div class="donut-center"><strong>${formatNumber(total)}</strong><span>Total</span></div></div><div class="legend">${data.map(([label,value,color])=>`<div class="legend-row" style="--dot:${color}"><i class="legend-dot"></i><span>${label}</span><strong>${Math.round(value/total*100)}%</strong></div>`).join('')}</div></div>`;
+}
+function renderActivityChart(rows) {
+  const container=document.getElementById('activity-chart');
+  const source=new Map(rows.map(row=>[String(row.fecha).slice(0,10),Number(row.total||0)]));
+  const days=[];
+  for(let i=6;i>=0;i--){ const date=new Date(); date.setHours(12,0,0,0); date.setDate(date.getDate()-i); const key=date.toLocaleDateString('en-CA',{timeZone:'America/Lima'}); days.push({key,label:date.toLocaleDateString('es-PE',{day:'2-digit',month:'short',timeZone:'America/Lima'}),value:source.get(key)||0}); }
+  const width=650,height=220,pad={l:38,r:18,t:18,b:33};
+  const max=Math.max(...days.map(day=>day.value),1); const innerW=width-pad.l-pad.r,innerH=height-pad.t-pad.b;
+  const points=days.map((day,index)=>({x:pad.l+(innerW/(days.length-1))*index,y:pad.t+innerH-(day.value/max)*innerH,...day}));
+  const line=points.map((point,index)=>`${index?'L':'M'} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
+  const area=`${line} L ${points.at(-1).x} ${pad.t+innerH} L ${points[0].x} ${pad.t+innerH} Z`;
+  const grid=[0,.25,.5,.75,1];
+  container.innerHTML=`<div class="line-chart-wrap"><svg class="line-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><defs><linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".42"/><stop offset="1" stop-color="#3b82f6" stop-opacity=".02"/></linearGradient></defs><g class="line-grid">${grid.map(v=>{const y=pad.t+innerH-innerH*v;return `<line x1="${pad.l}" y1="${y}" x2="${width-pad.r}" y2="${y}"/><text class="line-value" x="4" y="${y+3}">${Math.round(max*v)}</text>`}).join('')}</g><path class="line-area" d="${area}"/><path class="line-path" d="${line}"/>${points.map(point=>`<circle class="line-point" cx="${point.x}" cy="${point.y}" r="4"/><text class="line-label" text-anchor="middle" x="${point.x}" y="${height-8}">${point.label}</text>`).join('')}</svg></div>`;
 }
 
-function estadoConexion(ultimaVezStr, activo) {
-  if (activo === false || activo === 0) {
-    return '<span style="color:var(--red)">❌ Desinstalado</span>';
-  }
-  const d = toUtcDate(ultimaVezStr);
-  if (!d) return '<span style="color:var(--text3)">⚪ Sin datos</span>';
-  const minutos = (Date.now() - d.getTime()) / 60000;
-  if (minutos >= 0 && minutos <= 2) return '<span style="color:var(--green)">🟢 En línea</span>';
-  return '<span style="color:var(--text3)">⚪ Desconectado</span>';
+// HISTORY TABLE
+function historyRow(item) {
+  const domain=domainFromUrl(item.url || '');
+  const classification=item.clasificacion || 'Sin clasificar';
+  const action=item.accion || 'Sin acción';
+  return `<tr><td class="url-cell td-primary"><span class="truncate" title="${escapeHtml(item.url || '')}">${escapeHtml(domain)}</span></td><td><span class="badge ${classificationBadge(classification)}">${escapeHtml(classification)}</span></td><td><span class="risk ${riskClass(item.riesgo)}">${Number(item.riesgo||0)}%</span></td><td><span class="action-label ${actionClass(action)}">${actionIcon(action)}${escapeHtml(action)}</span></td><td><span class="device-id" title="${escapeHtml(item.device_id||'')}">${ICONS.device}${escapeHtml(deviceDisplay(item.device_id))}</span></td><td class="td-muted">${escapeHtml(formatFecha(item.fecha))}</td></tr>`;
 }
-
-function nombreDispositivo(deviceId) {
-  const d = dispositivos_cache.find(x => x.device_id === deviceId);
-  if (d && d.nombre) return d.nombre;
-  return deviceId ? deviceId.substring(0, 12) + '...' : '–';
+function historyRowFull(item) {
+  const base=historyRow(item);
+  const cells=base.replace('<tr>','').replace('</tr>','').match(/<td[\s\S]*?<\/td>/g) || [];
+  return `<tr>${cells[4]||''}${cells.slice(0,4).join('')}${cells[5]||''}</tr>`;
 }
-
-function renderHistorialTable(tbodyId, items) {
-  const tbody = document.getElementById(tbodyId);
-  if (!items.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin registros</td></tr>'; return; }
-  tbody.innerHTML = items.map(i => {
-    let domain = i.url; try { domain = new URL(i.url).hostname; } catch(e){}
-    return `<tr>
-      <td><span class="device-id" title="${i.device_id||''}">${nombreDispositivo(i.device_id)}</span></td>
-      <td class="td-mono" title="${i.url}" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${domain}</td>
-      <td><span class="badge ${badgeClass(i.clasificacion)}">${i.clasificacion}</span></td>
-      <td><span class="risk-pill ${riskClass(i.riesgo)}">${i.riesgo}%</span></td>
-      <td style="color:${i.accion==='Bloqueado'?'var(--red)':i.accion==='Advertencia'?'var(--yellow)':'var(--green)'}">${i.accion}</td>
-      <td style="font-size:11px;color:var(--text3)">${formatFecha(i.fecha)}</td>
-    </tr>`;
-  }).join('');
+function renderHistoryTable(tbodyId, items, full=false) {
+  const tbody=document.getElementById(tbodyId);
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="6" class="empty">No se encontraron registros.</td></tr>`;return;}
+  tbody.innerHTML=items.map(item=>full?historyRowFull(item):historyRow(item)).join('');
 }
-
-function renderDispositivos(items) {
-  const tbody = document.getElementById('devices-tbody');
-  if (!items.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin dispositivos registrados aún</td></tr>'; updateDeviceSelectionUI(); return; }
-  tbody.innerHTML = items.map(d => `<tr>
-    <td><input type="checkbox" class="dev-checkbox" value="${d.device_id}" onclick="updateDeviceSelectionUI()"></td>
-    <td><span class="device-id">${d.device_id}</span></td>
-    <td style="color:var(--text)">${d.nombre ? d.nombre : '<span style="color:var(--text3)">— sin nombre —</span>'}</td>
-    <td style="font-size:11px;color:var(--text3)">${formatFecha(d.primera_vez)}</td>
-    <td style="font-size:11px">${estadoConexion(d.ultima_vez, d.activo)}<br><span style="color:var(--text3)">${formatFecha(d.ultima_vez)}</span></td>
-    <td style="font-weight:700;color:var(--accent)">${d.total_urls||0}</td>
-    <td>
-      <button class="btn btn-danger btn-sm" onclick="clearDeviceHistory('${d.device_id}')">🗑️ Limpiar</button>
-    </td>
-  </tr>`).join('');
-  updateDeviceSelectionUI();
-}
-
-function toggleSelectAllDevices(checkbox) {
-  document.querySelectorAll('.dev-checkbox').forEach(cb => { cb.checked = checkbox.checked; });
-  updateDeviceSelectionUI();
-}
-
-function updateDeviceSelectionUI() {
-  const checked = document.querySelectorAll('.dev-checkbox:checked');
-  const countEl = document.getElementById('dev-selected-count');
-  const btnEl = document.getElementById('btn-delete-devices');
-  if (checked.length > 0) {
-    countEl.textContent = checked.length + ' seleccionado(s)';
-    btnEl.style.display = 'inline-flex';
-  } else {
-    countEl.textContent = '';
-    btnEl.style.display = 'none';
-  }
-  const all = document.querySelectorAll('.dev-checkbox');
-  const selectAllEl = document.getElementById('dev-select-all');
-  if (selectAllEl) selectAllEl.checked = all.length > 0 && checked.length === all.length;
-}
-
-async function eliminarDispositivosSeleccionados() {
-  const ids = Array.from(document.querySelectorAll('.dev-checkbox:checked')).map(cb => cb.value);
-  if (!ids.length) return;
-  const confirmMsg = ids.length === 1
-    ? `¿Eliminar el dispositivo ${ids[0]}?\n\nEsto borra también TODO su historial de URLs. Esta acción no se puede deshacer.`
-    : `¿Eliminar estos ${ids.length} dispositivos?\n\nEsto borra también TODO su historial de URLs. Esta acción no se puede deshacer.`;
-  if (!confirm(confirmMsg)) return;
-  await fetch(API + '/admin/dispositivos/eliminar', {
-    method: 'POST', headers: authHeaders(),
-    body: JSON.stringify({ device_ids: ids })
+function getFilteredHistory() {
+  const search=normalizeText(document.getElementById('history-search').value);
+  const device=document.getElementById('hist-device-filter').value;
+  const classification=document.getElementById('history-class-filter').value;
+  const action=document.getElementById('history-action-filter').value;
+  return historial_cache.filter(item => {
+    const matchesSearch=!search || normalizeText(`${item.url} ${item.dominio||''}`).includes(search);
+    return matchesSearch && (!device||item.device_id===device) && (!classification||item.clasificacion===classification) && (!action||item.accion===action);
   });
-  loadAll();
 }
-
-function renderBlacklist(items) {
-  const tbody = document.getElementById('bl-tbody');
-  if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin entradas en la blacklist</td></tr>'; return; }
-  tbody.innerHTML = items.map(i => `<tr>
-    <td>${i.device_id==='*'?'<span class="badge info">🌐 Todos</span>':'<span class="device-id">'+i.device_id.substring(0,14)+'...</span>'}</td>
-    <td style="font-family:monospace;color:var(--red)">${i.patron}</td>
-    <td><span class="badge warn">${i.tipo}</span></td>
-    <td style="font-size:11px;color:var(--text3)">${formatFecha(i.creado)}</td>
-    <td><button class="btn btn-danger btn-sm" onclick="removeBlacklist(${i.id})">❌ Eliminar</button></td>
-  </tr>`).join('');
+function renderHistoryPage() {
+  const items=getFilteredHistory();
+  renderHistoryTable('hist-tbody',items,true);
+  document.getElementById('hist-kpi-total').textContent=formatNumber(items.length);
+  document.getElementById('hist-kpi-blocked').textContent=formatNumber(items.filter(item=>item.accion==='Bloqueado').length);
+  document.getElementById('hist-kpi-allowed').textContent=formatNumber(items.filter(item=>item.accion==='Permitido').length);
+  document.getElementById('hist-kpi-warn').textContent=formatNumber(items.filter(item=>item.accion==='Advertencia').length);
+  document.getElementById('history-results-count').textContent=`${formatNumber(items.length)} resultado(s)`;
 }
-
-function populateDeviceSelects(devices) {
-  const selHist = document.getElementById('hist-device-filter');
-  const selBl = document.getElementById('bl-device-select');
-  const prev = selHist.value;
-  selHist.innerHTML = '<option value="">Todos los dispositivos</option>';
-  selBl.innerHTML = '<option value="*">🌐 Todos los dispositivos</option>';
-  devices.forEach(d => {
-    const etiqueta = d.nombre ? d.nombre + ' (' + d.device_id.substring(0,10) + '...)' : d.device_id.substring(0,20)+'...';
-    selHist.innerHTML += `<option value="${d.device_id}">${etiqueta}</option>`;
-    selBl.innerHTML += `<option value="${d.device_id}">${etiqueta}</option>`;
-  });
-  if (prev) selHist.value = prev;
+['history-search','hist-device-filter','history-class-filter','history-action-filter'].forEach(id => document.getElementById(id).addEventListener(id==='history-search'?'input':'change',renderHistoryPage));
+function populateClassificationFilter() {
+  const select=document.getElementById('history-class-filter');
+  const previous=select.value;
+  const values=[...new Set(historial_cache.map(item=>item.clasificacion).filter(Boolean))].sort();
+  select.innerHTML='<option value="">Todas las clasificaciones</option>'+values.map(value=>`<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
+  if(values.includes(previous)) select.value=previous;
 }
-
-// ── ACTIONS ───────────────────────────────────────────────────────────────────
-
-document.getElementById('hist-device-filter').addEventListener('change', loadHistorial);
-
+function populateDeviceSelects() {
+  const hist=document.getElementById('hist-device-filter'), bl=document.getElementById('bl-device-select');
+  const prevHist=hist.value, prevBl=bl.value;
+  const options=dispositivos_cache.map(device=>{const label=device.nombre?`${device.nombre} (${device.device_id.slice(0,10)}...)`:device.device_id;return `<option value="${escapeHtml(device.device_id)}">${escapeHtml(label)}</option>`}).join('');
+  hist.innerHTML='<option value="">Todos los dispositivos</option>'+options;
+  bl.innerHTML='<option value="*">Todos los dispositivos</option>'+options;
+  if(dispositivos_cache.some(device=>device.device_id===prevHist)) hist.value=prevHist;
+  if(prevBl==='*'||dispositivos_cache.some(device=>device.device_id===prevBl)) bl.value=prevBl||'*';
+}
 document.getElementById('btn-clear-hist').addEventListener('click', async () => {
-  const deviceId = document.getElementById('hist-device-filter').value;
-  const msg = deviceId ? 'dispositivo seleccionado' : 'TODOS los dispositivos';
-  if (!confirm(`¿Eliminar historial de ${msg}?`)) return;
-  const url = API + '/admin/historial/' + (deviceId || 'all');
-  await fetch(url, { method:'DELETE', headers: authHeaders() });
-  loadHistorial();
-  loadStats();
+  const deviceId=document.getElementById('hist-device-filter').value;
+  const description=deviceId?deviceDisplay(deviceId):'todos los dispositivos';
+  if(!confirm(`¿Eliminar el historial de ${description}?\n\nEsta acción no se puede deshacer.`)) return;
+  try { await apiFetch('/admin/historial/'+encodeURIComponent(deviceId||'all'),{method:'DELETE'}); showToast('Historial eliminado',`Se limpió el historial de ${description}.`); await loadAll(); } catch(e){showToast('No se pudo eliminar',e.message,'error');}
+});
+document.getElementById('btn-export-history').addEventListener('click', () => {
+  const items=getFilteredHistory();
+  if(!items.length){showToast('Sin datos','No existen registros para exportar.','error');return;}
+  const rows=[['Dispositivo','URL','Clasificación','Riesgo','Acción','Fecha'],...items.map(item=>[item.device_id,item.url,item.clasificacion,item.riesgo,item.accion,formatFecha(item.fecha)])];
+  const csv='\ufeff'+rows.map(row=>row.map(value=>`"${String(value??'').replaceAll('"','""')}"`).join(';')).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const anchor=document.createElement('a');anchor.href=url;anchor.download='safeurl-historial.csv';anchor.click();URL.revokeObjectURL(url);
+  showToast('Archivo generado','El historial filtrado se exportó en formato CSV.');
 });
 
+// DEVICES
+function getFilteredDevices() {
+  const search=normalizeText(document.getElementById('device-search').value);
+  const status=document.getElementById('device-status-filter').value;
+  return dispositivos_cache.filter(device => (!search||normalizeText(`${device.device_id} ${device.nombre||''}`).includes(search)) && (!status||connectionStatus(device).key===status));
+}
+function renderDevicesPage() {
+  const items=getFilteredDevices();
+  const total=dispositivos_cache.length, online=dispositivos_cache.filter(d=>connectionStatus(d).key==='online').length;
+  const uninstalled=dispositivos_cache.filter(d=>connectionStatus(d).key==='uninstalled').length;
+  const urls=dispositivos_cache.reduce((sum,d)=>sum+Number(d.total_urls||0),0);
+  document.getElementById('dev-kpi-total').textContent=formatNumber(total);
+  document.getElementById('dev-kpi-online').textContent=formatNumber(online);
+  document.getElementById('dev-kpi-offline').textContent=formatNumber(total-online-uninstalled);
+  document.getElementById('dev-kpi-urls').textContent=formatNumber(urls);
+  const tbody=document.getElementById('devices-tbody');
+  if(!items.length) tbody.innerHTML='<tr><td colspan="8" class="empty">No se encontraron dispositivos.</td></tr>';
+  else tbody.innerHTML=items.map(device=>{const status=connectionStatus(device);return `<tr><td><input type="checkbox" class="checkbox dev-checkbox" value="${escapeHtml(device.device_id)}"></td><td><span class="device-id" title="${escapeHtml(device.device_id)}">${ICONS.device}${escapeHtml(device.device_id)}</span></td><td class="td-primary">${device.nombre?escapeHtml(device.nombre):'<span class="td-muted">Sin nombre asignado</span>'}</td><td class="td-muted">${escapeHtml(formatFecha(device.primera_vez))}</td><td><span class="td-primary">${escapeHtml(formatFecha(device.ultima_vez))}</span></td><td><span class="badge ${status.className}"><i class="status-dot" style="--status:${status.color}"></i>${status.label}</span></td><td><strong style="color:#64a6ff">${formatNumber(device.total_urls)}</strong></td><td><button class="btn btn-danger btn-clear-device" data-device="${escapeHtml(device.device_id)}">${ICONS.trash}Limpiar historial</button></td></tr>`}).join('');
+  document.getElementById('device-results-count').textContent=`${formatNumber(items.length)} dispositivo(s)`;
+  document.getElementById('dev-select-all').checked=false;
+  updateDeviceSelectionUI();
+  renderDeviceActivity(); renderDeviceSummary();
+}
+function renderDeviceActivity() {
+  const container=document.getElementById('device-activity');
+  const items=[...dispositivos_cache].sort((a,b)=>Number(b.total_urls)-Number(a.total_urls)).slice(0,6);
+  if(!items.length){container.innerHTML='<div class="chart-empty" style="height:150px">Sin dispositivos registrados.</div>';return;}
+  const max=Math.max(...items.map(item=>Number(item.total_urls||0)),1);
+  container.innerHTML=items.map(item=>`<div class="hbar-row"><span class="hbar-label" title="${escapeHtml(deviceDisplay(item.device_id))}">${escapeHtml(deviceDisplay(item.device_id))}</span><div class="hbar-track"><div class="hbar-fill" style="--w:${Math.max(2,Number(item.total_urls||0)/max*100)}%"></div></div><span class="hbar-value">${formatNumber(item.total_urls)}</span></div>`).join('');
+}
+function renderDeviceSummary() {
+  const total=dispositivos_cache.length;
+  const online=dispositivos_cache.filter(d=>connectionStatus(d).key==='online').length;
+  const offline=dispositivos_cache.filter(d=>connectionStatus(d).key==='offline').length;
+  const uninstalled=dispositivos_cache.filter(d=>connectionStatus(d).key==='uninstalled').length;
+  const urls=dispositivos_cache.reduce((sum,d)=>sum+Number(d.total_urls||0),0);
+  document.getElementById('device-summary').innerHTML=[['En línea',online,'#22c55e'],['Desconectados',offline,'#f59e0b'],['Desinstalados',uninstalled,'#ef4444'],['URLs acumuladas',urls,'#3b82f6']].map(([label,value,color])=>`<div class="summary-item"><span><i class="status-dot" style="--status:${color}"></i>${label}</span><strong style="color:${color}">${formatNumber(value)}${label!=='URLs acumuladas'&&total?` (${Math.round(value/total*100)}%)`:''}</strong></div>`).join('');
+}
+function updateDeviceSelectionUI() {
+  const checked=[...document.querySelectorAll('.dev-checkbox:checked')];
+  document.getElementById('dev-selected-count').textContent=checked.length?`${checked.length} seleccionado(s)`:'';
+  document.getElementById('btn-delete-devices').style.display=checked.length?'inline-flex':'none';
+  const all=[...document.querySelectorAll('.dev-checkbox')];
+  document.getElementById('dev-select-all').checked=all.length>0&&checked.length===all.length;
+}
+document.getElementById('device-search').addEventListener('input',renderDevicesPage);
+document.getElementById('device-status-filter').addEventListener('change',renderDevicesPage);
+document.getElementById('dev-select-all').addEventListener('change',event=>{document.querySelectorAll('.dev-checkbox').forEach(cb=>cb.checked=event.target.checked);updateDeviceSelectionUI();});
+document.getElementById('devices-tbody').addEventListener('change',event=>{if(event.target.classList.contains('dev-checkbox'))updateDeviceSelectionUI();});
+document.getElementById('devices-tbody').addEventListener('click',event=>{const button=event.target.closest('.btn-clear-device');if(button)clearDeviceHistory(button.dataset.device);});
 async function clearDeviceHistory(deviceId) {
-  if (!confirm(`¿Eliminar historial de ${deviceId}?`)) return;
-  await fetch(API + '/admin/historial/' + deviceId, { method:'DELETE', headers: authHeaders() });
-  loadAll();
+  if(!confirm(`¿Eliminar todo el historial de ${deviceDisplay(deviceId)}?`))return;
+  try{await apiFetch('/admin/historial/'+encodeURIComponent(deviceId),{method:'DELETE'});showToast('Historial eliminado',`Se limpió el historial de ${deviceDisplay(deviceId)}.`);await loadAll();}catch(e){showToast('No se pudo eliminar',e.message,'error');}
 }
-
-document.getElementById('btn-add-bl').addEventListener('click', async () => {
-  const deviceId = document.getElementById('bl-device-select').value;
-  const patron = document.getElementById('bl-patron').value.trim();
-  if (!patron) { alert('Escribe un patrón para bloquear'); return; }
-  await fetch(API + '/admin/blacklist', {
-    method: 'POST', headers: authHeaders(),
-    body: JSON.stringify({ device_id: deviceId, patron: patron, tipo: 'palabra' })
-  });
-  document.getElementById('bl-patron').value = '';
-  loadBlacklist();
+document.getElementById('btn-delete-devices').addEventListener('click',async()=>{
+  const ids=[...document.querySelectorAll('.dev-checkbox:checked')].map(cb=>cb.value);if(!ids.length)return;
+  if(!confirm(`¿Eliminar ${ids.length} dispositivo(s)?\n\nTambién se eliminarán su historial y reglas específicas.`))return;
+  try{await apiFetch('/admin/dispositivos/eliminar',{method:'POST',body:JSON.stringify({device_ids:ids})});showToast('Dispositivos eliminados',`Se eliminaron ${ids.length} dispositivo(s).`);await loadAll();}catch(e){showToast('No se pudo eliminar',e.message,'error');}
 });
 
-async function removeBlacklist(id) {
-  if (!confirm('¿Eliminar este bloqueo?')) return;
-  await fetch(API + '/admin/blacklist/' + id, { method:'DELETE', headers: authHeaders() });
-  loadBlacklist();
+// BLACKLIST
+function getFilteredBlacklist() {
+  const search=normalizeText(document.getElementById('blacklist-search').value);
+  return blacklist_cache.filter(item=>!search||normalizeText(`${item.patron} ${item.device_id}`).includes(search));
 }
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-
-const savedToken = sessionStorage.getItem('admin_token');
-if (savedToken) {
-  TOKEN = savedToken;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-  loadAll();
+function renderBlacklistPage() {
+  const items=getFilteredBlacklist();
+  document.getElementById('bl-kpi-total').textContent=formatNumber(blacklist_cache.length);
+  document.getElementById('bl-kpi-global').textContent=formatNumber(blacklist_cache.filter(item=>item.device_id==='*').length);
+  document.getElementById('bl-kpi-specific').textContent=formatNumber(blacklist_cache.filter(item=>item.device_id!=='*').length);
+  const tbody=document.getElementById('bl-tbody');
+  if(!items.length) tbody.innerHTML='<tr><td colspan="4" class="empty">No se encontraron reglas de bloqueo.</td></tr>';
+  else tbody.innerHTML=items.map(item=>`<tr><td>${item.device_id==='*'?'<span class="badge info">Todos los dispositivos</span>':`<span class="device-id" title="${escapeHtml(item.device_id)}">${ICONS.device}${escapeHtml(deviceDisplay(item.device_id))}</span>`}</td><td class="td-primary td-mono">${escapeHtml(item.patron)}</td><td class="td-muted">${escapeHtml(formatFecha(item.creado))}</td><td><button class="btn btn-danger btn-remove-blacklist" data-id="${Number(item.id)}">${ICONS.trash}Eliminar</button></td></tr>`).join('');
+  document.getElementById('blacklist-results-count').textContent=`${formatNumber(items.length)} regla(s)`;
 }
+document.getElementById('blacklist-search').addEventListener('input',renderBlacklistPage);
+document.getElementById('btn-add-bl').addEventListener('click',addBlacklist);
+document.getElementById('bl-patron').addEventListener('keydown',event=>{if(event.key==='Enter')addBlacklist();});
+async function addBlacklist() {
+  const device_id=document.getElementById('bl-device-select').value;
+  const patron=document.getElementById('bl-patron').value.trim();
+  if(!patron){showToast('Falta el patrón','Escribe una palabra, dominio o URL para bloquear.','error');return;}
+  try{await apiFetch('/admin/blacklist',{method:'POST',body:JSON.stringify({device_id,patron})});document.getElementById('bl-patron').value='';showToast('Bloqueo agregado',`El patrón “${patron}” ya está activo.`);await loadAll();}catch(e){showToast('No se pudo agregar',e.message,'error');}
+}
+document.getElementById('bl-tbody').addEventListener('click',async event=>{const button=event.target.closest('.btn-remove-blacklist');if(!button)return;if(!confirm('¿Eliminar esta regla de bloqueo?'))return;try{await apiFetch('/admin/blacklist/'+button.dataset.id,{method:'DELETE'});showToast('Regla eliminada','La blacklist fue actualizada.');await loadAll();}catch(e){showToast('No se pudo eliminar',e.message,'error');}});
 
-setInterval(loadAll, 30000);
+// INIT
+const savedToken=sessionStorage.getItem('admin_token');
+if(savedToken){TOKEN=savedToken;showApp();loadAll();}
+setInterval(()=>{if(TOKEN)loadAll();},30000);
 </script>
 </body>
 </html>

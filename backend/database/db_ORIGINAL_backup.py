@@ -360,12 +360,6 @@ def obtener_historial(device_id: str = None, limit: int = 100):
 
 
 def obtener_estadisticas():
-    """Devuelve métricas completas para el panel administrativo.
-
-    Se conservan las claves originales y se agregan agrupaciones por acción y
-    por día para alimentar los gráficos del dashboard sin inventar datos en el
-    navegador.
-    """
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -378,52 +372,14 @@ def obtener_estadisticas():
         cur.execute("SELECT COUNT(*) as c FROM dispositivos")
         dispositivos = cur.fetchone()["c"]
 
-        cur.execute("""
-            SELECT clasificacion, COUNT(*) as total
-            FROM historial
-            GROUP BY clasificacion
-            ORDER BY total DESC
-        """)
+        cur.execute("SELECT clasificacion, COUNT(*) as total FROM historial GROUP BY clasificacion")
         por_tipo = cur.fetchall()
-
-        cur.execute("""
-            SELECT accion, COUNT(*) as total
-            FROM historial
-            GROUP BY accion
-            ORDER BY total DESC
-        """)
-        por_accion = cur.fetchall()
-
-        if USE_POSTGRES:
-            cur.execute("""
-                SELECT DATE(fecha) AS fecha, COUNT(*) AS total
-                FROM historial
-                WHERE fecha >= CURRENT_DATE - INTERVAL '6 days'
-                GROUP BY DATE(fecha)
-                ORDER BY fecha ASC
-            """)
-        else:
-            cur.execute("""
-                SELECT date(fecha) AS fecha, COUNT(*) AS total
-                FROM historial
-                WHERE datetime(fecha) >= datetime('now', '-6 days')
-                GROUP BY date(fecha)
-                ORDER BY fecha ASC
-            """)
-        por_dia_rows = cur.fetchall()
-        por_dia = []
-        for row in por_dia_rows:
-            item = dict(row)
-            item["fecha"] = str(item["fecha"])
-            por_dia.append(item)
 
         return {
             "total": total,
             "bloqueadas": bloqueadas,
             "dispositivos": dispositivos,
             "por_tipo": [dict(r) for r in por_tipo],
-            "por_accion": [dict(r) for r in por_accion],
-            "por_dia": por_dia,
         }
     finally:
         conn.close()
