@@ -12,7 +12,7 @@ const CACHE_TTL = 10 * 60 * 1000;
 const userAllowedUrls = new Set();
 let blacklistCache = [];
 let blacklistLastUpdate = 0;
-const BLACKLIST_TTL = 60 * 1000; // actualiza cada 60 segundos
+const BLACKLIST_TTL = 20 * 1000; // actualiza cada 20 segundos
 
 function shouldSkipUrl(url) {
   return SKIP_URLS.some(function(prefix) { return url.startsWith(prefix); });
